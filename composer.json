@@ -1,0 +1,27 @@
+{
+    "name": "s25/max-mind",
+    "description": "max-mind/max-mind",
+    "type": "shopware-platform-plugin",
+    "version": "1.1.1",
+    "license": "MIT",
+    "require": {
+        "shopware/core": "~6.6.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "MaxMind\\MaxMind",
+        "label": {
+            "de-DE": "MaxMind",
+            "en-GB": "MaxMind"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "MaxMind\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MaxMind\\Tests\\": "tests/"
+        }
+    }
+}
