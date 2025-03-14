@@ -1,5 +1,4 @@
-# MaxMind Fraud Prevention - Shopware 6 Plugin - Coming Soon
-
+# MaxMind Fraud Prevention - Shopware 6 Plugin
 ## ✨ Coming Soon - Shopware 6 Plugin
 
 Protect your Shopware store with **MaxMind Fraud Prevention**! Detect high-risk orders, prevent chargebacks, and analyze transactions in real-time with AI-driven fraud scoring.  
