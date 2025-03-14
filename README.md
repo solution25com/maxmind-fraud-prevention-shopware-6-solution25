@@ -29,7 +29,7 @@ Follow us for updates and more information:
   - **Email:** [info@solution25.com](mailto:info@solution25.com)  
   - **Phone:** +49 421 438 1919-0  
 
-## 🛠 Installation (Available after release on May 1, 2025)
+## 🛠 Installation
 Once the plugin is released, you can install it using the following command:
 
 ```bash
