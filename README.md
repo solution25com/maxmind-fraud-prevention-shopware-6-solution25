@@ -38,6 +38,8 @@ bin/console plugin:install --activate PluginName
 ```
 Step-by-step installation instructions will be provided upon release.  
 
+For step-by-step installation instructions, please refer to the [Maxmind Installation Guide](https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25/blob/main/MaxMind%20Plugin%20Configuration.pdf).
+
 ## 🚀 Developers & Contributions
 If you want to contribute to the development, feel free to fork the repository and submit pull requests.
 
