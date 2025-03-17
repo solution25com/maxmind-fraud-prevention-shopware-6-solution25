@@ -10,43 +10,29 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 
 ### Key Features
 **Fraud Detection**: Analyzes orders using MaxMind and assigns a risk score.
-
 **Automatic Order Review**: Flags orders as “Fraud Review” if the risk score is too high.
-
 **Admin Panel Integration**: Allows configuration of API keys, risk thresholds, and settings.
-
 **Device Tracking**: Injects MaxMind’s JavaScript for fraud detection.
-
 **Easy Monitoring**: Displays fraud scores in the Orders grid and Order Detail view.
-
 **Shopware Compatibility**: Works with Shopware 6.4–6.5 and future updates.
 
 ## Get Started
 ### Installation & Activation 
   **1. Download** 
-  
-    - Clone the Plugin Repository:
-   
-    - Open your terminal and run the following command in your Shopware 6 custom plugins directory (usually located at custom/plugins/):
+  - Clone the Plugin Repository:
+  - Open your terminal and run the following command in your Shopware 6 custom plugins directory (usually located at custom/plugins/):
     ```git clone 
     https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25.git```
   **2. Install the Plugin in Shopware 6**
- 
-    - Log in to your Shopware 6 Administration panel.
-    
-    - Navigate to Extensions > My Extensions.
-    
-    - Locate the newly cloned plugin and click Install.
+  - Log in to your Shopware 6 Administration panel.
+  - Navigate to Extensions > My Extensions.
+  - Locate the newly cloned plugin and click Install.
     
   **3. Activate the Plugin**
-    
-    - After installation, click Activate to enable the plugin.
-    
-    - In your Shopware Admin, go to Settings > System > Plugins. 
-    
-    - Upload or install the “MaxMind” plugin. 
-    
-    - Once installed, toggle the plugin to activate it. 
+   - After installation, click Activate to enable the plugin.
+   - In your Shopware Admin, go to Settings > System > Plugins. 
+   - Upload or install the “MaxMind” plugin. 
+   - Once installed, toggle the plugin to activate it. 
     
   **4. Verify Installation** 
     
