@@ -138,4 +138,3 @@ Here are other plugins developed by solution25 that might be useful alongside th
 # Wiki Documentation
 Read more about the plugin configuration on [our Wiki]().
 
-
