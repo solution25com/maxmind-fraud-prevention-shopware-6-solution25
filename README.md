@@ -10,10 +10,15 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 
 ### Key Features
 **Fraud Detection**: Analyzes orders using MaxMind and assigns a risk score.
+
 **Automatic Order Review**: Flags orders as “Fraud Review” if the risk score is too high.
+
 **Admin Panel Integration**: Allows configuration of API keys, risk thresholds, and settings.
+
 **Device Tracking**: Injects MaxMind’s JavaScript for fraud detection.
+
 **Easy Monitoring**: Displays fraud scores in the Orders grid and Order Detail view.
+
 **Shopware Compatibility**: Works with Shopware 6.4–6.5 and future updates.
 
 ## Get Started
@@ -21,13 +26,16 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
   **1. Download** 
   
     - Clone the Plugin Repository:
+   
     - Open your terminal and run the following command in your Shopware 6 custom plugins directory (usually located at custom/plugins/):
     ```git clone 
     https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25.git```
   **2. Install the Plugin in Shopware 6**
  
     - Log in to your Shopware 6 Administration panel.
+    
     - Navigate to Extensions > My Extensions.
+    
     - Locate the newly cloned plugin and click Install.
     
   **3. Activate the Plugin**
@@ -89,7 +97,8 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
     ![Group 7923](https://github.com/user-attachments/assets/9cd61f3d-82c9-463a-83f2-1fbccc3d3b7d)
 
   **5. Order Detail Page with Status Options**
-    ![Screenshot 2025-03-17 at 16 38 54 1 (1)](https://github.com/user-attachments/assets/a63e2f0f-4728-4966-ac81-412f809d218c)
+    ![Group 7922](https://github.com/user-attachments/assets/846045e5-61df-4fc7-9322-68c36386b0ad)
+
 
 ## Best Practices 
   **1. Set a Reasonable Threshold** 
