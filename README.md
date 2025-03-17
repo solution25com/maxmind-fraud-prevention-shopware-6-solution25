@@ -35,55 +35,39 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
    - Once installed, toggle the plugin to activate it. 
     
   **4. Verify Installation** 
-    
-    - After activation, you will see MaxMind in the list of installed plugins. 
-    
-    - The plugin name, version, and installation date should appear as shown in the screenshot below. 
+   - After activation, you will see MaxMind in the list of installed plugins. 
+   - The plugin name, version, and installation date should appear as shown in the screenshot below. 
     
     ![Group 7924](https://github.com/user-attachments/assets/552e5eda-3dee-49b3-bc2c-270b248b025b)
 
 ## Plugin Configuration 
   **1. Access Plugin Settings** 
-    
     - Go to Settings > System > Plugins. 
-    
     - Locate MaxMind and click the ... icon or the plugin name to open its settings. 
     
   **2. General Settings** 
-    
     - Sales Channel: Select the sales channel(s) where you want MaxMind to be active. If you choose “All Sales Channels,” it will apply to every channel in your store. 
-    
     - MaxMind Account ID: Enter the Account ID provided by MaxMind. 
-    
     - MaxMind License Key: Enter the License Key from your MaxMind account. 
-    
     - Risk Threshold (0 to 99): If an order’s risk score exceeds this threshold, the order status is set to Fraud Review. 
 
   **3. Save Configuration** 
-    
     - Click Save in the top-right corner to store your settings. 
     
     ![Screenshot 2025-03-17 at 16 38 54 1](https://github.com/user-attachments/assets/d05872c8-e795-4c2c-a288-a64891f493d3)
 
 ## How It Works 
   **1. Customer Places an Order** 
-    
     - When the customer checks out, the plugin sends order data to MaxMind’s API for a fraud assessment. 
    
   **2. Risk Score Calculation** 
-    
     - MaxMind returns a Fraud Risk Score (0.01 to 99).
-    
     - If the score is above your configured threshold, the plugin automatically sets the order status to Fraud Review.
-    
     - If the score is below the threshold, the order is automatically marked as Fraud Pass.
-    
     - The Open and Cancel statuses are no longer used in this workflow.
    
   **3. Order Status Update** 
-    
     - The Order status field in Shopware will show “Fraud Review” if the risk score exceeds your threshold. 
-    
     - You can see this status in the Orders overview page. 
    
 ## Viewing and Managing Orders 
