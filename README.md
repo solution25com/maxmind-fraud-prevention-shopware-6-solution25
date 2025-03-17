@@ -9,15 +9,10 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 
 ### Key Features
 **Fraud Detection**: Analyzes orders using MaxMind and assigns a risk score.
-
 **Automatic Order Review**: Flags orders as “Fraud Review” if the risk score is too high.
-
 **Admin Panel Integration**: Allows configuration of API keys, risk thresholds, and settings.
-
 **Device Tracking**: Injects MaxMind’s JavaScript for fraud detection.
-
 **Easy Monitoring**: Displays fraud scores in the Orders grid and Order Detail view.
-
 **Shopware Compatibility**: Works with Shopware 6.4–6.5 and future updates.
 
 ## Get Started
