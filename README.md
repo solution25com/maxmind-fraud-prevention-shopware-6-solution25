@@ -146,3 +146,7 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
   - Clear Shopware’s cache after saving.
   - Check file permissions if changes don’t persist.
 
+## Wiki Documentation
+Read more about the plugin configuration on our [Wiki]().
+
+
