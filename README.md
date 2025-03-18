@@ -145,6 +145,16 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 - **Settings Not Saving**
   - Clear Shopware’s cache after saving.
   - Check file permissions if changes don’t persist.
+ 
+## FAQ
+- **Is a MaxMind account required?** 
+   - Yes. You need an active MaxMind account and a valid license key for the plugin to function. 
+- **Can I limit the plugin to specific sales channels?**
+   - Yes. In the plugin settings, you can select which channels it should apply to. 
+- **What happens to orders flagged as ‘Fraud Review’?**
+   - You can investigate them and then manually change their status to Fraud Pass or Fraud Fail as needed. 
+- **Does the plugin handle refunds or chargebacks automatically?**
+   - No. It only provides a fraud risk score and sets the order status. Refunds/chargebacks must be managed separately. 
 
 ## Wiki Documentation
 Read more about the plugin configuration on our [Wiki]().
