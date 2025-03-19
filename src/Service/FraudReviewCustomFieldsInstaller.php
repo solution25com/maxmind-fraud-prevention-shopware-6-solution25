@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MaxMind\Service;
 
@@ -14,59 +16,58 @@ class FraudReviewCustomFieldsInstaller
     private const CUSTOM_FIELDSET_NAME = 'fraud_review_custom_fields';
 
     private const CUSTOM_FIELDSET = [
-        'name' => self::CUSTOM_FIELDSET_NAME,
+        'name'   => self::CUSTOM_FIELDSET_NAME,
         'config' => [
             'label' => [
-                'en-GB' => 'Fraud Review',
-                'de-DE' => 'Betrugsüberprüfung',
+                'en-GB'                   => 'Fraud Review',
+                'de-DE'                   => 'Betrugsüberprüfung',
                 Defaults::LANGUAGE_SYSTEM => 'Mention the fallback label here'
             ]
         ],
         'customFields' => [
              [
-                'name' => 'maxmind_fraud_risk',
-                'type' => CustomFieldTypes::FLOAT,
+                'name'   => 'maxmind_fraud_risk',
+                'type'   => CustomFieldTypes::FLOAT,
                 'config' => [
                     'label' => [
-                        'en-GB' => 'Is product preorder',
-                        'de-DE' => 'Ist das Produkt vorbestellbar',
+                        'en-GB'                   => 'Is product preorder',
+                        'de-DE'                   => 'Ist das Produkt vorbestellbar',
                         Defaults::LANGUAGE_SYSTEM => 'Mention the fallback label here'
                     ],
                     'customFieldPosition' => 1
                 ]
-            ],
-            [
-                'name' => 'maxmind_fraud_score',
-                'type' => CustomFieldTypes::FLOAT,
+             ],
+             [
+                'name'   => 'maxmind_fraud_score',
+                'type'   => CustomFieldTypes::FLOAT,
                 'config' => [
                     'label' => [
-                        'en-GB' => 'Is product preorder',
-                        'de-DE' => 'Ist das Produkt vorbestellbar',
+                        'en-GB'                   => 'Is product preorder',
+                        'de-DE'                   => 'Ist das Produkt vorbestellbar',
                         Defaults::LANGUAGE_SYSTEM => 'Mention the fallback label here'
                     ],
                     'customFieldPosition' => 2
                 ]
-            ],
-            [
-                'name' => 'maxmind_fraud_details',
-                'type' => CustomFieldTypes::TEXT,
+             ],
+             [
+                'name'   => 'maxmind_fraud_details',
+                'type'   => CustomFieldTypes::TEXT,
                 'config' => [
                     'label' => [
-                        'en-GB' => 'Is product preorder',
-                        'de-DE' => 'Ist das Produkt vorbestellbar',
+                        'en-GB'                   => 'Is product preorder',
+                        'de-DE'                   => 'Ist das Produkt vorbestellbar',
                         Defaults::LANGUAGE_SYSTEM => 'Mention the fallback label here'
                     ],
                     'customFieldPosition' => 3
                 ]
-            ]
+             ]
         ]
     ];
 
     public function __construct(
         private readonly EntityRepository $customFieldSetRepository,
         private readonly EntityRepository $customFieldSetRelationRepository
-    )
-    {
+    ) {
     }
 
     public function install(Context $context): void
@@ -82,11 +83,10 @@ class FraudReviewCustomFieldsInstaller
             $this->customFieldSetRelationRepository->upsert(array_map(function (string $customFieldSetId) {
                 return [
                     'customFieldSetId' => $customFieldSetId,
-                    'entityName' => 'product',
+                    'entityName'       => 'product',
                 ];
             }, $this->getCustomFieldSetIds($context)), $context);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             // do nothing
         }
     }
