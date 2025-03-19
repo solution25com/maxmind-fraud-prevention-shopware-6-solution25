@@ -31,7 +31,7 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 - Clone the Plugin Repository:
 - Open your terminal and run the following command in your Shopware 6 custom plugins directory (usually located at custom/plugins/):
   ```
-  git clone [https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25.git](https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25.git)
+  git clone https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25.git
   ```
 
 2. **Install the Plugin in Shopware 6**
