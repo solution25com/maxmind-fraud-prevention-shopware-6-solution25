@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MaxMind\Service;
 
@@ -12,24 +14,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 class DoneCancelStateInstaller
 {
     private const STATE_MACHINE_TECHNICAL_NAME = 'order.state';
-    private const NEW_STATE_TECHNICAL_NAME = 'done';
-    private const NEW_STATE_NAME = 'Done';
-    private const TRANSITIONS = [
+    private const NEW_STATE_TECHNICAL_NAME     = 'done';
+    private const NEW_STATE_NAME               = 'Done';
+    private const TRANSITIONS                  = [
         'mark_as_done' => [
             'from' => 'fraud_pass',
-            'to' => 'done',
+            'to'   => 'done',
         ],
         'mark_as_cancel' => [
             'from' => 'fraud_fail',
-            'to' => 'cancelled',
+            'to'   => 'cancelled',
         ],
         'mark_as_fraud_pass' => [
             'from' => 'done',
-            'to' => 'fraud_pass',
+            'to'   => 'fraud_pass',
         ],
         'mark_as_fraud_fail' => [
             'from' => 'cancelled',
-            'to' => 'fraud_fail',
+            'to'   => 'fraud_fail',
         ],
     ];
     public function __construct(
@@ -48,10 +50,10 @@ class DoneCancelStateInstaller
         if ($isAdding) {
             $this->stateMachineStateRepository->upsert([
                 [
-                    'technicalName' => self::NEW_STATE_TECHNICAL_NAME,
-                    'name' => self::NEW_STATE_NAME,
+                    'technicalName'  => self::NEW_STATE_TECHNICAL_NAME,
+                    'name'           => self::NEW_STATE_NAME,
                     'stateMachineId' => $stateMachineId,
-                    'translations' => [
+                    'translations'   => [
                         $defaultLanguageId => [
                             'name' => self::NEW_STATE_NAME
                         ]
@@ -98,9 +100,9 @@ class DoneCancelStateInstaller
         $transitions = [];
         foreach (self::TRANSITIONS as $actionName => $states) {
             $transitions[] = [
-                'actionName' => $actionName,
-                'fromStateId' => $this->getStateId($states['from'], $stateMachineId, $context),
-                'toStateId' => $this->getStateId($states['to'], $stateMachineId, $context),
+                'actionName'     => $actionName,
+                'fromStateId'    => $this->getStateId($states['from'], $stateMachineId, $context),
+                'toStateId'      => $this->getStateId($states['to'], $stateMachineId, $context),
                 'stateMachineId' => $stateMachineId,
             ];
         }
