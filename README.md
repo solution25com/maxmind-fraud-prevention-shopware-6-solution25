@@ -157,6 +157,6 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
    - No. It only provides a fraud risk score and sets the order status. Refunds/chargebacks must be managed separately. 
 
 ## Wiki Documentation
-Read more about the plugin configuration on our [Wiki]().
+Read more about the plugin configuration on our [Wiki](https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25/wiki).
 
 
