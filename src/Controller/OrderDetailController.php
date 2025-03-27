@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace MaxMind\Controller;
 
@@ -32,7 +30,7 @@ class OrderDetailController extends AbstractController
         }
 
         return $this->json([
-            'orderId'   => $order->getId(),
+            'orderId' => $order->getId(),
             'fraudRisk' => $order->getCustomFields()['maxmind_fraud_risk'] ?? 'N/A',
         ]);
     }

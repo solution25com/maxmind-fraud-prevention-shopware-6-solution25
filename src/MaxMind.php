@@ -1,12 +1,12 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace MaxMind;
 
+use MaxMind\Service\CompleteStateInstaller;
 use MaxMind\Service\DoneCancelStateInstaller;
 use MaxMind\Service\FraudFailStateInstaller;
 use MaxMind\Service\FraudPassStateInstaller;
+use MaxMind\Service\InProgressStateInstaller;
 use MaxMind\Service\PendingFraudReviewStateInstaller;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
@@ -20,6 +20,7 @@ use MaxMind\Service\FraudReviewCustomFieldsInstaller;
 
 class MaxMind extends Plugin
 {
+
     public function install(InstallContext $installContext): void
     {
         parent::install($installContext);
@@ -27,7 +28,9 @@ class MaxMind extends Plugin
         $this->getCustomFieldsInstaller()->install($installContext->getContext());
         $this->getFraudPassOrderStateInstaller()->managePresaleStatuses($installContext->getContext(), true);
         $this->getFraudFailOrderStateInstaller()->managePresaleStatuses($installContext->getContext(), true);
-        $this->getDoneCancelOrderStateInstaller()->managePresaleStatuses($installContext->getContext(), true);
+        $this->getDoneCancelOrderStateInstaller()->managePresaleStatuses($installContext->getContext(), false);
+        $this->getCompleteOrderStateInstaller()->managePresaleStatuses($installContext->getContext(), true);
+        $this->getInProgressStateInstaller()->managePresaleStatuses($installContext->getContext(), true);
     }
 
     public function uninstall(UninstallContext $uninstallContext): void
@@ -39,11 +42,13 @@ class MaxMind extends Plugin
         $this->getFraudPassOrderStateInstaller()->managePresaleStatuses($uninstallContext->getContext(), false);
         $this->getFraudFailOrderStateInstaller()->managePresaleStatuses($uninstallContext->getContext(), false);
         $this->getDoneCancelOrderStateInstaller()->managePresaleStatuses($uninstallContext->getContext(), false);
+        $this->getCompleteOrderStateInstaller()->managePresaleStatuses($uninstallContext->getContext(), false);
+        $this->getInProgressStateInstaller()->managePresaleStatuses($uninstallContext->getContext(), false);
     }
     public function update(UpdateContext $updateContext): void
     {
         parent::update($updateContext);
-        $this->getDoneCancelOrderStateInstaller()->managePresaleStatuses($updateContext->getContext(), true);
+        $this->getInProgressStateInstaller()->managePresaleStatuses($updateContext->getContext(), true);
     }
     public function activate(ActivateContext $activateContext): void
     {
@@ -122,6 +127,32 @@ class MaxMind extends Plugin
         }
 
         return new DoneCancelStateInstaller(
+            $this->container->get('state_machine.repository'),
+            $this->container->get('state_machine_state.repository'),
+            $this->container->get('state_machine_transition.repository'),
+            $this->container->get('state_machine_history.repository')
+        );
+    }
+    private function getCompleteOrderStateInstaller(): object
+    {
+        if ($this->container->has(CompleteStateInstaller::class)) {
+            return $this->container->get(CompleteStateInstaller::class);
+        }
+
+        return new CompleteStateInstaller(
+            $this->container->get('state_machine.repository'),
+            $this->container->get('state_machine_state.repository'),
+            $this->container->get('state_machine_transition.repository'),
+            $this->container->get('state_machine_history.repository')
+        );
+    }
+    private function getInProgressStateInstaller(): object
+    {
+        if ($this->container->has(InProgressStateInstaller::class)) {
+            return $this->container->get(InProgressStateInstaller::class);
+        }
+
+        return new InProgressStateInstaller(
             $this->container->get('state_machine.repository'),
             $this->container->get('state_machine_state.repository'),
             $this->container->get('state_machine_transition.repository'),
