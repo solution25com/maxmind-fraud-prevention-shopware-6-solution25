@@ -4,7 +4,7 @@
 
 ## Introduction
 
-The MaxMind plugin helps detect and prevent fraud in Shopware stores. It checks every order for fraud risk using MaxMind’s service and assigns a risk score. If the score is too high, the order is flagged for review.
+The MaxMind plugin helps detect and prevent fraud in Shopware stores. It checks every order for fraud risk using MaxMind’s service and assigns a risk score. If the score is too high , the order is flagged for review.
 The plugin helps store owners reduce fraud by automatically analyzing orders, flagging suspicious ones, and providing risk scores in the admin panel.
 
 ### Key Features
