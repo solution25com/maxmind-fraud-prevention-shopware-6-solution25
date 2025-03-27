@@ -145,6 +145,9 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 - **Settings Not Saving**
   - Clear Shopware’s cache after saving.
   - Check file permissions if changes don’t persist.
+- **ClassNotFoundError: MaxMind\MinFraud Not Found in OrderPlacedSubscriber.php**
+  - You need to run **"composer require maxmind/minfraud"** 
+  - Make sure you're on the root when you use **"composer require maxmind/minfraud"** 
  
 ## FAQ
 - **Is a MaxMind account required?** 
