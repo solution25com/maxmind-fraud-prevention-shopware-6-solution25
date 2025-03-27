@@ -5,7 +5,7 @@
     <script>
         (function() {
             var mmapiws = window.__mmapiws = window.__mmapiws || {};
-            mmapiws.accountId = "{{ page.extensions.maxmindJsSnippet.accountId|default('') }}";
+            mmapiws.accountId = "{{ config('MaxMind.config.MaxMindConfigAccountId') }}";
             var loadDeviceJs = function() {
                 var element = document.createElement('script');
                 element.async = true;

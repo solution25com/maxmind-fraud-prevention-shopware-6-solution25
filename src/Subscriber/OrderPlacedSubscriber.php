@@ -43,83 +43,87 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
 
     public function onOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
-        $context = $event->getContext();
-        $orderId = $event->getOrder()->getId();
+        try {
+            $context = $event->getContext();
+            $orderId = $event->getOrder()->getId();
 
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('billingAddress.country.phoneCode');
-        $criteria->addAssociation('orderCustomer');
-        $criteria->addAssociation('currency');
-        $criteria->addAssociation('salesChannel');
-
-
-        $orderSearchResult = $this->orderRepository->search($criteria, $context);
-        /** @var OrderEntity|null $order */
-        $order = $orderSearchResult->first();
-
-        $salesChannelId = $event->getSalesChannelId();
-        /** @var int $accountId */
-        $accountId = (int)$this->systemConfigService->get('MaxMind.config.MaxMindConfigAccountId', $salesChannelId);
-
-        /** @var string|null $licenseKey */
-        $licenseKey = $this->systemConfigService->get('MaxMind.config.MaxMindConfigLicenseKey', $salesChannelId);
-
-        /** @var float $riskThreshold */
-        $riskThreshold = (float) $this->systemConfigService->get('MaxMind.config.MaxMindConfigRiskThreshold', $salesChannelId);
-
-        if((int)$accountId == 0 || empty($licenseKey)) {
-            $this->logger->error("MaxMind Account ID or License Key is missing for Sales Channel $salesChannelId.");
-            return;
-        }
-        $riskScore = $this->callMinFraudApi($order, $accountId, $licenseKey);
-
-        $this->logger->info("Order $orderId has a MaxMind risk score of: $riskScore");
-
-        $this->orderRepository->update([
-            [
-                'id' => $orderId,
-                'customFields' => [
-                    'maxmind_fraud_risk' => $riskScore,
-                ],
-            ]
-        ], $context);
+            $criteria = new Criteria([$orderId]);
+            $criteria->addAssociation('billingAddress.country.phoneCode');
+            $criteria->addAssociation('orderCustomer');
+            $criteria->addAssociation('currency');
+            $criteria->addAssociation('salesChannel');
 
 
-        if ($riskScore > $riskThreshold) {
-            try {
-                $transition = new Transition(
-                    'order',
-                    $orderId,
-                    'mark_as_fraud_review',
-                    'stateId'
-                );
-                $this->stateMachineRegistry->transition($transition, $context);
+            $orderSearchResult = $this->orderRepository->search($criteria, $context);
+            /** @var OrderEntity|null $order */
+            $order = $orderSearchResult->first();
 
-                $this->logger->warning("Order $orderId has been transitioned to Fraud Review due to high risk score ($riskScore).");
-            } catch (\Exception $e) {
-                $this->logger->error("Error transitioning order $orderId to Fraud Review: " . $e->getMessage());
+            $salesChannelId = $event->getSalesChannelId();
+            /** @var int $accountId */
+            $accountId = (int)$this->systemConfigService->get('MaxMind.config.MaxMindConfigAccountId', $salesChannelId);
+
+            /** @var string|null $licenseKey */
+            $licenseKey = $this->systemConfigService->get('MaxMind.config.MaxMindConfigLicenseKey', $salesChannelId);
+
+            /** @var float $riskThreshold */
+            $riskThreshold = (float)$this->systemConfigService->get('MaxMind.config.MaxMindConfigRiskThreshold', $salesChannelId);
+
+            if ((int)$accountId == 0 || empty($licenseKey)) {
+                $this->logger->error("MaxMind Account ID or License Key is missing for Sales Channel $salesChannelId.");
+                return;
+            }
+            $riskScore = $this->callMinFraudApi($order, $accountId, $licenseKey);
+
+            $this->logger->info("Order $orderId has a MaxMind risk score of: $riskScore");
+
+            $this->orderRepository->update([
+                [
+                    'id' => $orderId,
+                    'customFields' => [
+                        'maxmind_fraud_risk' => $riskScore,
+                    ],
+                ]
+            ], $context);
+
+
+            if ($riskScore > $riskThreshold) {
+                try {
+                    $transition = new Transition(
+                        'order',
+                        $orderId,
+                        'mark_as_fraud_review',
+                        'stateId'
+                    );
+                    $this->stateMachineRegistry->transition($transition, $context);
+
+                    $this->logger->warning("Order $orderId has been transitioned to Fraud Review due to high risk score ($riskScore).");
+                } catch (\Exception $e) {
+                    $this->logger->error("Error transitioning order $orderId to Fraud Review: " . $e->getMessage());
+                }
+            } else {
+                try {
+                    $transition = new Transition(
+                        'order',
+                        $orderId,
+                        'mark_as_fraud_review',
+                        'stateId'
+                    );
+                    $this->stateMachineRegistry->transition($transition, $context);
+                    $transition = new Transition(
+                        'order',
+                        $orderId,
+                        'mark_as_fraud_manual_pass',
+                        'stateId'
+                    );
+                    $this->stateMachineRegistry->transition($transition, $context);
+                    $this->logger->info("Order $orderId has been transitioned to Open due to low risk score ($riskScore).");
+                } catch (\Exception $e) {
+                    $this->logger->error("Error transitioning order $orderId to Open: " . $e->getMessage());
+                }
             }
         }
-        else{
-            try {
-                $transition = new Transition(
-                    'order',
-                    $orderId,
-                    'mark_as_fraud_review',
-                    'stateId'
-                );
-                $this->stateMachineRegistry->transition($transition, $context);
-                $transition = new Transition(
-                    'order',
-                    $orderId,
-                    'mark_as_fraud_manual_pass',
-                    'stateId'
-                );
-                $this->stateMachineRegistry->transition($transition, $context);
-                $this->logger->info("Order $orderId has been transitioned to Open due to low risk score ($riskScore).");
-            } catch (\Exception $e) {
-                $this->logger->error("Error transitioning order $orderId to Open: " . $e->getMessage());
-            }
+        catch (\Exception $e) {
+            $this->logger->error("Error processing order: " . $e->getMessage());
         }
     }
 

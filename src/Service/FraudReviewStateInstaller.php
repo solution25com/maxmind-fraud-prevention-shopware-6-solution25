@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class FraudReviewStateInstaller
 {
@@ -16,18 +15,10 @@ class FraudReviewStateInstaller
     private const NEW_STATE_TECHNICAL_NAME = 'fraud_review';
     private const NEW_STATE_NAME = 'Fraud Review';
     private const TRANSITIONS = [
-        'mark_as_fraud_review' => [
-            'from' => 'open',
-            'to' => 'fraud_review',
-        ],
-        'mark_as_open' => [
-            'from' => 'fraud_review',
-            'to' => 'open',
-        ],
-        'mark_as_cancel' => [
-            'from' => 'fraud_review',
-            'to' => 'cancelled',
-        ],
+        'mark_as_fraud_review' => ['from' => 'open', 'to' => 'fraud_review'],
+        'mark_as_open' => ['from' => 'fraud_review', 'to' => 'open'],
+        'mark_as_cancel' => ['from' => 'fraud_review', 'to' => 'cancelled'],
+        'mark_as_fraud_fail' => ['from' => 'fraud_review', 'to' => 'fraud_fail'],
     ];
 
     public function __construct(
@@ -38,71 +29,101 @@ class FraudReviewStateInstaller
     ) {
     }
 
-    public function managePresaleStatuses(Context $context, bool $isAdding): void
+    public function install(Context $context): void
     {
-        $stateMachineId = $this->getStateMachineId($this->stateMachineRepository, $context);
-        //get default system language id
-        $defaultLanguageId = Defaults::LANGUAGE_SYSTEM;
-        if ($isAdding) {
-            $this->stateMachineStateRepository->upsert([
-                [
-                    'technicalName' => self::NEW_STATE_TECHNICAL_NAME,
-                    'name' => self::NEW_STATE_NAME,
-                    'stateMachineId' => $stateMachineId,
-                    'translations' => [
-                        $defaultLanguageId => [
-                            'name' => self::NEW_STATE_NAME
-                        ]
-                    ]
-                ]
-            ], $context);
-
-            $transitions = $this->buildTransitions($stateMachineId, $context);
-            $this->stateMachineTransitionRepository->upsert($transitions, $context);
-        } else {
-            $this->removeTransitions($context);
-            $this->removeState($context, $stateMachineId);
+        $stateMachineId = $this->getStateMachineId($context);
+        if ($stateMachineId === null) {
+            return;
         }
+        $this->createState($stateMachineId, $context);
+        $this->createTransitions($stateMachineId, $context);
     }
 
-    private function getStateMachineId(EntityRepository $stateMachineRepository, Context $context): string
+    public function uninstall(Context $context): void
+    {
+        $stateMachineId = $this->getStateMachineId($context);
+        if ($stateMachineId === null) {
+            return;
+        }
+        $this->removeTransitions($context);
+        $this->removeState($stateMachineId, $context);
+    }
+
+    private function getStateMachineId(Context $context): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', self::STATE_MACHINE_TECHNICAL_NAME));
-        $stateMachine = $stateMachineRepository->search($criteria, $context)->first();
-        if (!$stateMachine) {
-            throw new \RuntimeException(sprintf('State machine "%s" not found.', self::STATE_MACHINE_TECHNICAL_NAME));
-        }
-
-        return $stateMachine->getId();
+        $stateMachine = $this->stateMachineRepository->search($criteria, $context)->first();
+        return $stateMachine ? $stateMachine->getId() : null;
     }
 
-    private function getStateId(string $technicalName, string $stateMachineId, Context $context): string
+    private function getStateId(string $technicalName, string $stateMachineId, Context $context): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
         $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
         $state = $this->stateMachineStateRepository->search($criteria, $context)->first();
-
-        if (!$state) {
-            throw new \RuntimeException(sprintf('State "%s" not found in state machine "%s".', $technicalName, $stateMachineId));
-        }
-
-        return $state->getId();
+        return $state ? $state->getId() : null;
     }
 
-    private function buildTransitions(string $stateMachineId, Context $context): array
+    private function createState(string $stateMachineId, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', self::NEW_STATE_TECHNICAL_NAME));
+        $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
+        $existingState = $this->stateMachineStateRepository->search($criteria, $context)->first();
+
+        if ($existingState) {
+            return;
+        }
+
+        $stateData = [
+            'technicalName' => self::NEW_STATE_TECHNICAL_NAME,
+            'name' => self::NEW_STATE_NAME,
+            'stateMachineId' => $stateMachineId,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['name' => self::NEW_STATE_NAME]
+            ]
+        ];
+
+        $this->stateMachineStateRepository->upsert([$stateData], $context);
+    }
+
+    private function createTransitions(string $stateMachineId, Context $context): void
     {
         $transitions = [];
         foreach (self::TRANSITIONS as $actionName => $states) {
-            $transitions[] = [
+            $fromStateId = $this->getStateId($states['from'], $stateMachineId, $context);
+            $toStateId = $this->getStateId($states['to'], $stateMachineId, $context);
+
+            if ($fromStateId === null || $toStateId === null) {
+                continue;
+            }
+
+            $transition = [
                 'actionName' => $actionName,
-                'fromStateId' => $this->getStateId($states['from'], $stateMachineId, $context),
-                'toStateId' => $this->getStateId($states['to'], $stateMachineId, $context),
+                'fromStateId' => $fromStateId,
+                'toStateId' => $toStateId,
                 'stateMachineId' => $stateMachineId,
             ];
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('actionName', $actionName));
+            $criteria->addFilter(new EqualsFilter('fromStateId', $transition['fromStateId']));
+            $criteria->addFilter(new EqualsFilter('toStateId', $transition['toStateId']));
+            $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
+            $existingTransition = $this->stateMachineTransitionRepository->search($criteria, $context)->first();
+
+            if ($existingTransition) {
+                continue;
+            }
+
+            $transitions[] = $transition;
         }
-        return $transitions;
+
+        if (!empty($transitions)) {
+            $this->stateMachineTransitionRepository->upsert($transitions, $context);
+        }
     }
 
     private function removeTransitions(Context $context): void
@@ -110,26 +131,63 @@ class FraudReviewStateInstaller
         foreach (array_keys(self::TRANSITIONS) as $actionName) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('actionName', $actionName));
-
             $transitions = $this->stateMachineTransitionRepository->search($criteria, $context);
 
             foreach ($transitions->getIds() as $transitionId) {
-                $this->stateMachineTransitionRepository->delete([['id' => $transitionId]], $context);
+                try {
+                    $this->stateMachineTransitionRepository->delete([['id' => $transitionId]], $context);
+                } catch (\Exception $e) {
+                    continue;
+                }
             }
         }
     }
 
-    private function removeState(Context $context, string $stateMachineId): void
+    private function removeState(string $stateMachineId, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', self::NEW_STATE_TECHNICAL_NAME));
         $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
-
         $states = $this->stateMachineStateRepository->search($criteria, $context);
 
-        foreach ($states->getIds() as $stateId) {
-            $this->removeStateMachineHistoryReferences($stateId, $context);
-            $this->stateMachineStateRepository->delete([['id' => $stateId]], $context);
+        foreach ($states as $state) {
+            $stateId = $state->getId();
+
+            try {
+                $this->removeAllTransitionsForState($stateId, $context);
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            try {
+                $this->removeStateMachineHistoryReferences($stateId, $context);
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            try {
+                $this->stateMachineStateRepository->delete([['id' => $stateId]], $context);
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+    }
+
+    private function removeAllTransitionsForState(string $stateId, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new OrFilter([
+            new EqualsFilter('fromStateId', $stateId),
+            new EqualsFilter('toStateId', $stateId),
+        ]));
+        $transitions = $this->stateMachineTransitionRepository->search($criteria, $context);
+
+        foreach ($transitions->getIds() as $transitionId) {
+            try {
+                $this->stateMachineTransitionRepository->delete([['id' => $transitionId]], $context);
+            } catch (\Exception $e) {
+                continue;
+            }
         }
     }
 
@@ -140,11 +198,14 @@ class FraudReviewStateInstaller
             new EqualsFilter('fromStateId', $stateId),
             new EqualsFilter('toStateId', $stateId),
         ]));
-
         $historyEntries = $this->stateMachineHistoryRepository->search($criteria, $context);
 
         foreach ($historyEntries->getIds() as $entryId) {
-            $this->stateMachineHistoryRepository->delete([['id' => $entryId]], $context);
+            try {
+                $this->stateMachineHistoryRepository->delete([['id' => $entryId]], $context);
+            } catch (\Exception $e) {
+                continue;
+            }
         }
     }
 }
