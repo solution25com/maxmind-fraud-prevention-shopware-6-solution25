@@ -38,6 +38,9 @@ jobs:
       - name: Require MaxMind MinFraud
         run: composer require maxmind/minfraud --no-interaction --no-update
 
+      - name: Install required Shopware dependencies
+        run: composer require shopware/storefront --no-interaction --no-update
+
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist
 
