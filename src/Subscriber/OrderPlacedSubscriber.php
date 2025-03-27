@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace MaxMind\Subscriber;
 
@@ -13,6 +11,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
 use MaxMind\MinFraud;
 use MaxMind\MinFraud\Model\Score;
 
@@ -29,9 +28,9 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
         LoggerInterface $logger,
         StateMachineRegistry $stateMachineRegistry
     ) {
-        $this->orderRepository      = $orderRepository;
-        $this->systemConfigService  = $systemConfigService;
-        $this->logger               = $logger;
+        $this->orderRepository = $orderRepository;
+        $this->systemConfigService = $systemConfigService;
+        $this->logger = $logger;
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
@@ -68,7 +67,7 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
         /** @var float $riskThreshold */
         $riskThreshold = (float) $this->systemConfigService->get('MaxMind.config.MaxMindConfigRiskThreshold', $salesChannelId);
 
-        if ((int)$accountId == 0 || empty($licenseKey)) {
+        if((int)$accountId == 0 || empty($licenseKey)) {
             $this->logger->error("MaxMind Account ID or License Key is missing for Sales Channel $salesChannelId.");
             return;
         }
@@ -78,7 +77,7 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
 
         $this->orderRepository->update([
             [
-                'id'           => $orderId,
+                'id' => $orderId,
                 'customFields' => [
                     'maxmind_fraud_risk' => $riskScore,
                 ],
@@ -100,16 +99,23 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
             } catch (\Exception $e) {
                 $this->logger->error("Error transitioning order $orderId to Fraud Review: " . $e->getMessage());
             }
-        } else {
+        }
+        else{
             try {
                 $transition = new Transition(
                     'order',
                     $orderId,
-                    'mark_as_fraud_pass',
+                    'mark_as_fraud_review',
                     'stateId'
                 );
                 $this->stateMachineRegistry->transition($transition, $context);
-
+                $transition = new Transition(
+                    'order',
+                    $orderId,
+                    'mark_as_fraud_manual_pass',
+                    'stateId'
+                );
+                $this->stateMachineRegistry->transition($transition, $context);
                 $this->logger->info("Order $orderId has been transitioned to Open due to low risk score ($riskScore).");
             } catch (\Exception $e) {
                 $this->logger->error("Error transitioning order $orderId to Open: " . $e->getMessage());
@@ -123,52 +129,57 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
      */
     private function callMinFraudApi(OrderEntity $order, int $accountId, ?string $licenseKey): float
     {
-        $client  = new \MaxMind\MinFraud($accountId, $licenseKey);
-        $request = $client->withDevice(
-            ipAddress: $order->getOrderCustomer()?->getRemoteAddress() ?? '127.0.0.1',
-            sessionAge: 3600.5,
-            sessionId: 'foobar',
-            userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36',
-            acceptLanguage: 'en-US,en;q=0.8'
-        );
-        $client->withEvent(
-            transactionId: $order->getOrderNumber(),
-            shopId: $order->getSalesChannelId(),
-            time: $order->getOrderDateTime()->format('c'),
-            type: 'purchase'
-        );
-        $client->withAccount(
-            userId: $order->getOrderCustomer()?->getCustomerId(),
-            usernameMd5: md5($order->getOrderCustomer()?->getEmail() ?? '')
-        );
-        $client->withEmail(
-            address: $order->getOrderCustomer()?->getEmail() ?? '',
-            domain: substr(strrchr($order->getOrderCustomer()?->getEmail() ?? '', "@"), 1)
-        );
-        //        $client->withCreditCard(
-        ////            issuerIdNumber: '411111',
-        //            lastDigits: '1118'
-        //        );
-        $client->withBilling(
-            firstName: $order->getBillingAddress()?->getFirstName()             ?? '',
-            lastName: $order->getBillingAddress()?->getLastName()               ?? '',
-            company: $order->getBillingAddress()?->getCompany()                 ?? '',
-            address: $order->getBillingAddress()?->getStreet()                  ?? '',
-            address2: $order->getBillingAddress()?->getAdditionalAddressLine1() ?? '',
-            city: $order->getBillingAddress()?->getCity()                       ?? '',
-            country: $order->getBillingAddress()?->getCountry()?->getIso()      ?? '',
-            postal: $order->getBillingAddress()?->getZipcode()                  ?? '',
-            phoneNumber: $order->getBillingAddress()?->getPhoneNumber()         ?? '',
-        );
+        try {
+            $client = new \MaxMind\MinFraud($accountId, $licenseKey);
+            $request = $client->withDevice(
+                ipAddress: $order->getOrderCustomer()?->getRemoteAddress() ?? '127.0.0.1',
+                sessionAge: 3600.5,
+                sessionId: 'foobar',
+                userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36',
+                acceptLanguage: 'en-US,en;q=0.8'
+            );
+            $client->withEvent(
+                transactionId: $order->getOrderNumber(),
+                shopId: $order->getSalesChannelId(),
+                time: $order->getOrderDateTime()->format('c'),
+                type: 'purchase'
+            );
+            $client->withAccount(
+                userId: $order->getOrderCustomer()?->getCustomerId(),
+                usernameMd5: md5($order->getOrderCustomer()?->getEmail() ?? '')
+            );
+            $client->withEmail(
+                address: $order->getOrderCustomer()?->getEmail() ?? '',
+                domain: substr(strrchr($order->getOrderCustomer()?->getEmail() ?? '', "@"), 1)
+            );
+//        $client->withCreditCard(
+////            issuerIdNumber: '411111',
+//            lastDigits: '1118'
+//        );
+            $client->withBilling(
+                firstName: $order->getBillingAddress()?->getFirstName() ?? '',
+                lastName: $order->getBillingAddress()?->getLastName() ?? '',
+                company: $order->getBillingAddress()?->getCompany() ?? '',
+                address: $order->getBillingAddress()?->getStreet() ?? '',
+                address2: $order->getBillingAddress()?->getAdditionalAddressLine1() ?? '',
+                city: $order->getBillingAddress()?->getCity() ?? '',
+                country: $order->getBillingAddress()?->getCountry()?->getIso() ?? '',
+                postal: $order->getBillingAddress()?->getZipcode() ?? '',
+                phoneNumber: $order->getBillingAddress()?->getPhoneNumber() ?? '',
+            );
 
-        $client->withOrder(
-            amount: $order->getAmountTotal(),
-            currency: $order->getCurrency()?->getIsoCode() ?? 'USD'
-        );
-        /** @var Score $response */
-        $response = $request->score();
+            $client->withOrder(
+                amount: $order->getAmountTotal(),
+                currency: $order->getCurrency()?->getIsoCode() ?? 'USD'
+            );
+            /** @var Score $response */
+            $response = $request->score();
 
-        $score = $response->riskScore;
-        return (float) $score;
+            $score = $response->riskScore;
+            return (float)$score;
+        } catch (\Exception $e) {
+            $this->logger->error("Error calling MaxMind minFraud API: " . $e->getMessage());
+            return 0.0;
+        }
     }
 }

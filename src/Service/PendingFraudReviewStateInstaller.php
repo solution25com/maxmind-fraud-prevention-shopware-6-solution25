@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace MaxMind\Service;
 
@@ -15,20 +13,20 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class PendingFraudReviewStateInstaller
 {
     private const STATE_MACHINE_TECHNICAL_NAME = 'order.state';
-    private const NEW_STATE_TECHNICAL_NAME     = 'pending_fraud_review';
-    private const NEW_STATE_NAME               = 'Pending';
-    private const TRANSITIONS                  = [
+    private const NEW_STATE_TECHNICAL_NAME = 'pending_fraud_review';
+    private const NEW_STATE_NAME = 'Pending';
+    private const TRANSITIONS = [
         'pending_as_fraud_review' => [
             'from' => 'pending_fraud_review',
-            'to'   => 'fraud_review',
+            'to' => 'fraud_review',
         ],
         'mark_as_open' => [
             'from' => 'pending_fraud_review',
-            'to'   => 'open',
+            'to' => 'open',
         ],
         'mark_as_cancel' => [
             'from' => 'pending_fraud_review',
-            'to'   => 'cancelled',
+            'to' => 'cancelled',
         ],
     ];
     public function __construct(
@@ -47,10 +45,10 @@ class PendingFraudReviewStateInstaller
         if ($isAdding) {
             $this->stateMachineStateRepository->upsert([
                 [
-                    'technicalName'  => self::NEW_STATE_TECHNICAL_NAME,
-                    'name'           => self::NEW_STATE_NAME,
+                    'technicalName' => self::NEW_STATE_TECHNICAL_NAME,
+                    'name' => self::NEW_STATE_NAME,
                     'stateMachineId' => $stateMachineId,
-                    'translations'   => [
+                    'translations' => [
                         $defaultLanguageId => [
                             'name' => self::NEW_STATE_NAME
                         ]
@@ -97,9 +95,9 @@ class PendingFraudReviewStateInstaller
         $transitions = [];
         foreach (self::TRANSITIONS as $actionName => $states) {
             $transitions[] = [
-                'actionName'     => $actionName,
-                'fromStateId'    => $this->getStateId($states['from'], $stateMachineId, $context),
-                'toStateId'      => $this->getStateId($states['to'], $stateMachineId, $context),
+                'actionName' => $actionName,
+                'fromStateId' => $this->getStateId($states['from'], $stateMachineId, $context),
+                'toStateId' => $this->getStateId($states['to'], $stateMachineId, $context),
                 'stateMachineId' => $stateMachineId,
             ];
         }
