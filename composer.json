@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "shopware/core": "~6.6.0",
-        "maxmind/minfraud": "^3.2",
+        "maxmind/minfraud": "^3.2"
     },
     "extra": {
         "shopware-plugin-class": "MaxMind\\MaxMind",
