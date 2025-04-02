@@ -5,7 +5,7 @@
     <card>
         <title lang="en-GB">MaxMind Settings</title>
         <title lang="de-DE">MaxMind Einstellungen</title>
-        <input-field type="text">
+        <input-field type="password">
             <name>MaxMindConfigAccountId</name>
             <label lang="en-GB">MaxMind Account ID</label>
             <label lang="de-DE">MaxMind Konto-ID</label>
@@ -13,7 +13,7 @@
             <help lang="de-DE">Geben Sie hier Ihre MaxMind Konto-ID ein.</help>
         </input-field>
 
-        <input-field type="text">
+        <input-field type="password">
             <name>MaxMindConfigLicenseKey</name>
             <label lang="en-GB">MaxMind License Key</label>
             <label lang="de-DE">MaxMind Lizenzschlüssel</label>
@@ -29,15 +29,6 @@
             <help lang="en-GB">Orders with a risk score above this value will be set to Fraud Review status.</help>
             <defaultValue>50</defaultValue>
         </input-field>
-
-<!--        <input-field type="text">-->
-<!--            <name>MaxMindConfigJsSnippetPlacement</name>-->
-<!--            <label lang="de-DE">JS-Snippet-Platzierung (checkout_head or checkout_footer)</label>-->
-<!--            <label lang="en-GB">JS Snippet Placement (checkout_head or checkout_footer)</label>-->
-<!--            <help lang="de-DE">Definieren Sie den Twig-Block, in den das MaxMind-JS-Snippet eingefügt werden soll (z.B. 'checkout_head').</help>-->
-<!--            <help lang="en-GB">Define the Twig block where the MaxMind JS snippet should be injected (e.g., 'checkout_head').</help>-->
-<!--            <defaultValue>checkout_head</defaultValue>-->
-<!--        </input-field>-->
 
     </card>
 </config>
