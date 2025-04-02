@@ -126,17 +126,18 @@ class CompleteStateInstaller
 
     private function removeTransitions(Context $context): void
     {
+        $deleteIds = [];
         foreach (array_keys(self::TRANSITIONS) as $actionName) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('actionName', $actionName));
             $transitions = $this->stateMachineTransitionRepository->search($criteria, $context);
+            $deleteIds = array_merge($deleteIds, $transitions->getIds());
+        }
 
-            foreach ($transitions->getIds() as $transitionId) {
-                try {
-                    $this->stateMachineTransitionRepository->delete([['id' => $transitionId]], $context);
-                } catch (\Exception $e) {
-                    continue;
-                }
+        if (!empty($deleteIds)) {
+            try {
+                $this->stateMachineTransitionRepository->delete(array_map(fn($id) => ['id' => $id], $deleteIds), $context);
+            } catch (\Exception $e) {
             }
         }
     }

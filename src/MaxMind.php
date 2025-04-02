@@ -3,7 +3,6 @@
 namespace MaxMind;
 
 use MaxMind\Service\CompleteStateInstaller;
-use MaxMind\Service\DoneCancelStateInstaller;
 use MaxMind\Service\FraudFailStateInstaller;
 use MaxMind\Service\FraudPassStateInstaller;
 use MaxMind\Service\InProgressStateInstaller;
@@ -28,7 +27,6 @@ class MaxMind extends Plugin
         $this->getCustomFieldsInstaller()->install($context);
         $this->getFraudPassOrderStateInstaller()->install($context);
         $this->getFraudFailOrderStateInstaller()->install($context);
-        $this->getDoneCancelOrderStateInstaller()->uninstall($context); // Originally false
         $this->getCompleteOrderStateInstaller()->install($context);
         $this->getInProgressStateInstaller()->install($context);
     }
@@ -42,7 +40,6 @@ class MaxMind extends Plugin
         $this->getPendingOrderStateInstaller()->uninstall($context);
         $this->getFraudPassOrderStateInstaller()->uninstall($context);
         $this->getFraudFailOrderStateInstaller()->uninstall($context);
-        $this->getDoneCancelOrderStateInstaller()->uninstall($context);
         $this->getCompleteOrderStateInstaller()->uninstall($context);
         $this->getInProgressStateInstaller()->uninstall($context);
     }
@@ -50,7 +47,6 @@ class MaxMind extends Plugin
     public function update(UpdateContext $updateContext): void
     {
         parent::update($updateContext);
-        $this->getInProgressStateInstaller()->install($updateContext->getContext());
     }
 
     public function activate(ActivateContext $activateContext): void
@@ -114,19 +110,6 @@ class MaxMind extends Plugin
             return $this->container->get(FraudFailStateInstaller::class);
         }
         return new FraudFailStateInstaller(
-            $this->container->get('state_machine.repository'),
-            $this->container->get('state_machine_state.repository'),
-            $this->container->get('state_machine_transition.repository'),
-            $this->container->get('state_machine_history.repository')
-        );
-    }
-
-    private function getDoneCancelOrderStateInstaller(): object
-    {
-        if ($this->container->has(DoneCancelStateInstaller::class)) {
-            return $this->container->get(DoneCancelStateInstaller::class);
-        }
-        return new DoneCancelStateInstaller(
             $this->container->get('state_machine.repository'),
             $this->container->get('state_machine_state.repository'),
             $this->container->get('state_machine_transition.repository'),
