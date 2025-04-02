@@ -2,7 +2,7 @@
     "name": "s25/max-mind",
     "description": "MaxMind fraud prevention",
     "type": "shopware-platform-plugin",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "license": "MIT",
     "require": {
         "shopware/core": "~6.6.0",
@@ -11,8 +11,8 @@
     "extra": {
         "shopware-plugin-class": "MaxMind\\MaxMind",
         "label": {
-            "de-DE": "MaxMind",
-            "en-GB": "MaxMind"
+            "de-DE": "MaxMind Bestellbetrugserkennung",
+            "en-GB": "MaxMind Order Fraud Detection"
         },
         "description": {
             "de-DE": "MaxMind Integration für Betrugserkennung",
