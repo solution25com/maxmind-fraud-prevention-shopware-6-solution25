@@ -4,6 +4,7 @@ namespace MaxMind\Subscriber;
 
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,9 +12,8 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-
 use MaxMind\MinFraud;
-use MaxMind\MinFraud\Model\Score;
+use MaxMind\Service\MaxMindAverageService;
 
 class OrderPlacedSubscriber implements EventSubscriberInterface
 {
@@ -21,17 +21,20 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
     private SystemConfigService $systemConfigService;
     private LoggerInterface $logger;
     private StateMachineRegistry $stateMachineRegistry;
+    private MaxMindAverageService $maxMindAverageService;
 
     public function __construct(
         EntityRepository $orderRepository,
         SystemConfigService $systemConfigService,
         LoggerInterface $logger,
-        StateMachineRegistry $stateMachineRegistry
+        StateMachineRegistry $stateMachineRegistry,
+        MaxMindAverageService $maxMindAverageService
     ) {
         $this->orderRepository = $orderRepository;
         $this->systemConfigService = $systemConfigService;
         $this->logger = $logger;
         $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->maxMindAverageService = $maxMindAverageService;
     }
 
     public static function getSubscribedEvents(): array
@@ -55,45 +58,36 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
 
 
             $orderSearchResult = $this->orderRepository->search($criteria, $context);
-            /** @var OrderEntity|null $order */
             $order = $orderSearchResult->first();
 
             $salesChannelId = $event->getSalesChannelId();
-            /** @var int $accountId */
             $accountId = (int)$this->systemConfigService->get('MaxMind.config.MaxMindConfigAccountId', $salesChannelId);
-
-            /** @var string|null $licenseKey */
             $licenseKey = $this->systemConfigService->get('MaxMind.config.MaxMindConfigLicenseKey', $salesChannelId);
-
-            /** @var float $riskThreshold */
             $riskThreshold = (float)$this->systemConfigService->get('MaxMind.config.MaxMindConfigRiskThreshold', $salesChannelId);
 
             if ((int)$accountId == 0 || empty($licenseKey)) {
                 $this->logger->error("MaxMind Account ID or License Key is missing for Sales Channel $salesChannelId.");
                 return;
             }
-            $riskScore = $this->callMinFraudApi($order, $accountId, $licenseKey);
+
+            $maxMindData = $this->callMinFraudApi($order, $accountId, $licenseKey, $context, $salesChannelId);
+            $riskScore = $maxMindData['maxmind_fraud_risk'];
 
             $this->logger->info("Order $orderId has a MaxMind risk score of: $riskScore");
+
+            $customFields = $order->getCustomFields() ?? [];
+            $customFields = array_merge($customFields, $maxMindData);
 
             $this->orderRepository->update([
                 [
                     'id' => $orderId,
-                    'customFields' => [
-                        'maxmind_fraud_risk' => $riskScore,
-                    ],
+                    'customFields' => $customFields,
                 ]
             ], $context);
 
-
             if ($riskScore > $riskThreshold) {
                 try {
-                    $transition = new Transition(
-                        'order',
-                        $orderId,
-                        'mark_as_fraud_review',
-                        'stateId'
-                    );
+                    $transition = new Transition('order', $orderId, 'mark_as_fraud_review', 'stateId');
                     $this->stateMachineRegistry->transition($transition, $context);
 
                     $this->logger->warning("Order $orderId has been transitioned to Fraud Review due to high risk score ($riskScore).");
@@ -127,11 +121,7 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * Call the real MaxMind minFraud API (Score endpoint) using the official PHP library.
-     * Returns the 'riskScore' (0.0 - 99).
-     */
-    private function callMinFraudApi(OrderEntity $order, int $accountId, ?string $licenseKey): float
+    private function callMinFraudApi(OrderEntity $order, int $accountId, ?string $licenseKey, Context $context, ?string $salesChannelId): array
     {
         try {
             $client = new \MaxMind\MinFraud($accountId, $licenseKey);
@@ -142,25 +132,21 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
                 userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36',
                 acceptLanguage: 'en-US,en;q=0.8'
             );
-            $client->withEvent(
+            $request->withEvent(
                 transactionId: $order->getOrderNumber(),
                 shopId: $order->getSalesChannelId(),
                 time: $order->getOrderDateTime()->format('c'),
                 type: 'purchase'
             );
-            $client->withAccount(
+            $request->withAccount(
                 userId: $order->getOrderCustomer()?->getCustomerId(),
                 usernameMd5: md5($order->getOrderCustomer()?->getEmail() ?? '')
             );
-            $client->withEmail(
+            $request->withEmail(
                 address: $order->getOrderCustomer()?->getEmail() ?? '',
                 domain: substr(strrchr($order->getOrderCustomer()?->getEmail() ?? '', "@"), 1)
             );
-//        $client->withCreditCard(
-////            issuerIdNumber: '411111',
-//            lastDigits: '1118'
-//        );
-            $client->withBilling(
+            $request->withBilling(
                 firstName: $order->getBillingAddress()?->getFirstName() ?? '',
                 lastName: $order->getBillingAddress()?->getLastName() ?? '',
                 company: $order->getBillingAddress()?->getCompany() ?? '',
@@ -171,19 +157,40 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
                 postal: $order->getBillingAddress()?->getZipcode() ?? '',
                 phoneNumber: $order->getBillingAddress()?->getPhoneNumber() ?? '',
             );
-
-            $client->withOrder(
+            $request->withOrder(
                 amount: $order->getAmountTotal(),
                 currency: $order->getCurrency()?->getIsoCode() ?? 'USD'
             );
-            /** @var Score $response */
-            $response = $request->score();
 
-            $score = $response->riskScore;
-            return (float)$score;
+            $response = $request->insights();
+
+            $ipRiskScore = $response->ipAddress->risk ?? 0.0;
+            $overallRiskScore = $this->maxMindAverageService->getOverallRiskScore($context, $salesChannelId);
+
+            $data = [
+                'maxmind_fraud_risk' => $response->riskScore ?? 0.0,
+                'maxmind_overall_risk_score' => $overallRiskScore,
+                'maxmind_ip_risk_score' => $ipRiskScore,
+                'maxmind_transaction_id' => $response->id ?? '',
+                'maxmind_transaction_url' => sprintf('https://www.maxmind.com/en/accounts/%s/minfraud-interactive/transactions/%s', $accountId, $response->id ?? ''),
+                'maxmind_warnings_factors' => array_map(function ($warning) {
+                    return $warning->warning ?? '';
+                }, $response->warnings ?? []),
+            ];
+
+            $this->logger->info("MaxMind Insights Response for Order {$order->getId()}: " . json_encode($data));
+
+            return $data;
         } catch (\Exception $e) {
             $this->logger->error("Error calling MaxMind minFraud API: " . $e->getMessage());
-            return 0.0;
+            return [
+                'maxmind_fraud_risk' => 0.0,
+                'maxmind_overall_risk_score' => 0.0,
+                'maxmind_ip_risk_score' => 0.0,
+                'maxmind_transaction_id' => '',
+                'maxmind_transaction_url' => '',
+                'maxmind_warnings_factors' => [],
+            ];
         }
     }
 }

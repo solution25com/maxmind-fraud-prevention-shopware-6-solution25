@@ -10,7 +10,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="state_machine.repository"/>
+            <argument type="service" id="MaxMind\Service\MaxMindAverageService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
         <service id="MaxMind\Controller\OrderDetailController" public="true">
@@ -27,5 +27,10 @@
             <argument type="service" id="state_machine_history.repository"/>
         </service>
 
+        <service id="MaxMind\Service\MaxMindAverageService">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="logger"/>
+        </service>
     </services>
 </container>
