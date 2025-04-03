@@ -101,7 +101,6 @@ class FraudReviewCustomFieldsInstaller
 
         return $this->customFieldSetRepository->searchIds($criteria, $context)->getIds();
     }
-
     public function remove(Context $context): void
     {
         $criteria = new Criteria();
@@ -109,17 +108,19 @@ class FraudReviewCustomFieldsInstaller
         $customFieldSetIds = $this->customFieldSetRepository->searchIds($criteria, $context)->getIds();
 
         if (!empty($customFieldSetIds)) {
-            foreach ($customFieldSetIds as $customFieldSetId) {
-                $this->customFieldSetRelationRepository->delete([
-                    ['customFieldSetId' => $customFieldSetId],
-                ], $context);
-            }
+            $this->customFieldSetRelationRepository->delete(
+                array_map(function ($id) {
+                    return ['customFieldSetId' => $id];
+                }, $customFieldSetIds),
+                $context
+            );
 
-            foreach ($customFieldSetIds as $customFieldSetId) {
-                $this->customFieldSetRepository->delete([
-                    ['id' => $customFieldSetId],
-                ], $context);
-            }
+            $this->customFieldSetRepository->delete(
+                array_map(function ($id) {
+                    return ['id' => $id];
+                }, $customFieldSetIds),
+                $context
+            );
         }
     }
 }

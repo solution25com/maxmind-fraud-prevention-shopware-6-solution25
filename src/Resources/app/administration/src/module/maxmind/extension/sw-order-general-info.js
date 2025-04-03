@@ -4,7 +4,7 @@ Shopware.Component.override('sw-order-general-info', {
     template,
 
     methods: {
-        getBackgroundStyle(stateType) {
+        getBackgroundStyle() {
             const technicalName = this.order.stateMachineState.technicalName;
             switch (technicalName) {
                 case 'in_progress':

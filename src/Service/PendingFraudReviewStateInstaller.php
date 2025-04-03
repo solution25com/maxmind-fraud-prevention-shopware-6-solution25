@@ -145,61 +145,64 @@ class PendingFraudReviewStateInstaller
 
     private function removeState(string $stateMachineId, Context $context): void
     {
+        // Retrieve all states to be removed
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', self::NEW_STATE_TECHNICAL_NAME));
         $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
         $states = $this->stateMachineStateRepository->search($criteria, $context);
 
+        // Arrays to collect IDs for batch deletion
+        $transitionDeleteIds = [];
+        $historyDeleteIds = [];
+        $stateDeleteIds = [];
+
+        // Collect all IDs in one pass
         foreach ($states as $state) {
             $stateId = $state->getId();
+            $stateDeleteIds[] = ['id' => $stateId];
 
-            try {
-                $this->removeAllTransitionsForState($stateId, $context);
-            } catch (\Exception $e) {
-                continue;
-            }
+            // Collect transition IDs
+            $transitionCriteria = new Criteria();
+            $transitionCriteria->addFilter(new OrFilter([
+                new EqualsFilter('fromStateId', $stateId),
+                new EqualsFilter('toStateId', $stateId),
+            ]));
+            $transitions = $this->stateMachineTransitionRepository->searchIds($transitionCriteria, $context);
+            $transitionDeleteIds = array_merge($transitionDeleteIds, array_map(fn($id) => ['id' => $id], $transitions->getIds()));
 
-            try {
-                $this->removeStateMachineHistoryReferences($stateId, $context);
-            } catch (\Exception $e) {
-                continue;
-            }
+            // Collect history entry IDs
+            $historyCriteria = new Criteria();
+            $historyCriteria->addFilter(new OrFilter([
+                new EqualsFilter('fromStateId', $stateId),
+                new EqualsFilter('toStateId', $stateId),
+            ]));
+            $historyEntries = $this->stateMachineHistoryRepository->searchIds($historyCriteria, $context);
+            $historyDeleteIds = array_merge($historyDeleteIds, array_map(fn($id) => ['id' => $id], $historyEntries->getIds()));
+        }
 
+        // Perform batch deletions
+        if (!empty($transitionDeleteIds)) {
             try {
-                $this->stateMachineStateRepository->delete([['id' => $stateId]], $context);
+                $this->stateMachineTransitionRepository->delete($transitionDeleteIds, $context);
             } catch (\Exception $e) {
-                continue;
+                // Log error if necessary, but continue execution
             }
         }
-    }
 
-    private function removeAllTransitionsForState(string $stateId, Context $context): void
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new OrFilter([
-            new EqualsFilter('fromStateId', $stateId),
-            new EqualsFilter('toStateId', $stateId),
-        ]));
-        $transitions = $this->stateMachineTransitionRepository->search($criteria, $context);
-        $deleteIds = $transitions->getIds();
-
-        if (!empty($deleteIds)) {
-            $this->stateMachineTransitionRepository->delete(array_map(fn($id) => ['id' => $id], $deleteIds), $context);
+        if (!empty($historyDeleteIds)) {
+            try {
+                $this->stateMachineHistoryRepository->delete($historyDeleteIds, $context);
+            } catch (\Exception $e) {
+                // Log error if necessary, but continue execution
+            }
         }
-    }
 
-    private function removeStateMachineHistoryReferences(string $stateId, Context $context): void
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new OrFilter([
-            new EqualsFilter('fromStateId', $stateId),
-            new EqualsFilter('toStateId', $stateId),
-        ]));
-        $historyEntries = $this->stateMachineHistoryRepository->search($criteria, $context);
-        $deleteIds = $historyEntries->getIds();
-
-        if (!empty($deleteIds)) {
-            $this->stateMachineHistoryRepository->delete(array_map(fn($id) => ['id' => $id], $deleteIds), $context);
+        if (!empty($stateDeleteIds)) {
+            try {
+                $this->stateMachineStateRepository->delete($stateDeleteIds, $context);
+            } catch (\Exception $e) {
+                // Log error if necessary, but continue execution
+            }
         }
     }
 }
