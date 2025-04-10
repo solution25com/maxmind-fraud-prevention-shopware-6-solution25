@@ -1,4 +1,4 @@
-![Maxmind](https://github.com/user-attachments/assets/a2d239af-4b48-491f-bbe6-aee88a258997)
+![1](https://github.com/user-attachments/assets/d37c88d5-0bdd-4ca9-ba14-9d2a26cc988a)
 
 # MaxMind Fraud Prevention
 
@@ -58,7 +58,7 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 
 - After activation, you will see MaxMind in the list of installed plugins.
 - The plugin name, version, and installation date should appear as shown in the screenshot below.
-![Group 7924](https://github.com/user-attachments/assets/552e5eda-3dee-49b3-bc2c-270b248b025b)
+![2](https://github.com/user-attachments/assets/3052ef31-11ef-4cb3-ad68-d483343a8412)
 
 ## Plugin Configuration
 
@@ -82,7 +82,7 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 
 - Click Save in the top-right corner to store your settings.
 
-![Screenshot 2025-03-17 at 16 38 54 1](https://github.com/user-attachments/assets/d05872c8-e795-4c2c-a288-a64891f493d3)
+![3](https://github.com/user-attachments/assets/bc5adf85-f999-4ea8-bf1f-11bb32699b25)
 
 ## How It Works
 
@@ -122,10 +122,10 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 - In the General tab, you can change the Order status from Fraud Review to Fraud Pass or Fraud Fail after reviewing the order details.
 
 4. **Orders Overview with Fraud Review & Fraud Risk Score**
-![Group 7923](https://github.com/user-attachments/assets/fbce1aff-1e00-4561-9f14-f7558b516dd3)
+![4](https://github.com/user-attachments/assets/b9e10a68-1737-48f7-ac44-df56c0ce080f)
 
 5. **Order Detail Page with Status Options**
-![Group 7922](https://github.com/user-attachments/assets/06e7e183-01b3-4d1b-97be-3c47089142f9)
+![5](https://github.com/user-attachments/assets/aff82a0e-b262-492d-9b2a-d3464da14454)
 
 ## Best Practices
 
