@@ -1,0 +1,20 @@
+{% block sw_order_detail_base_general_info_order_states_order %}
+    <div class="sw-order-general-info__order-state">
+        <sw-order-state-select-v2
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('order.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-order-general-info__order-state-order"
+            :class="getBackgroundStyle()"
+            :transition-options="orderStateOptions"
+            rounded-style
+            state-type="order"
+            :placeholder="order.stateMachineState.translated.name"
+            :label="$tc('sw-order.stateCard.headlineOrderState')"
+            :disabled="!acl.can('order.editor')"
+            @state-select="onStateSelected"
+        />
+    </div>
+{% endblock %}

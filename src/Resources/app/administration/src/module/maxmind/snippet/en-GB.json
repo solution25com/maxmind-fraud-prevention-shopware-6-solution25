@@ -1,0 +1,19 @@
+{
+    "sw-order-detail-general": {
+        "maxmindRiskScores": {
+            "title": "MaxMind Risk Scores",
+            "fraudRisk": "Fraud Risk Score",
+            "overallRiskScore": "Overall Risk Score",
+            "ipRiskScore": "IP Address Risk Score"
+        },
+        "maxmindFraudDetection": {
+            "title": "MaxMind Fraud Detection",
+            "viewInMaxMind": "View in MaxMind",
+            "copyTransactionId": "Copy Transaction ID",
+            "viewWarningsFactors": "View Warnings & Factors",
+            "noTransactionId": "No Transaction ID available.",
+            "transactionIdCopied": "Transaction ID copied to clipboard!",
+            "copyFailed": "Failed to copy Transaction ID."
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{% block sw_order_list_grid_columns_state %}
+    <template #column-stateMachineState.name="{ item }">
+        <div class="sw-order-list__state">
+            <sw-color-badge
+                :color="getVariantFromOrderState(item)"
+                :class="getStatusBadgeClass(item.stateMachineState.technicalName)"
+                rounded
+            />
+            {{ item.stateMachineState.translated.name }}
+        </div>
+    </template>
+{% endblock %}

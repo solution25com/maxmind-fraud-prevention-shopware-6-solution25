@@ -1,0 +1,23 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
+
+
+{% block page_checkout_summary_list %}
+    {{ parent() }}
+    <script>
+        (function() {
+            var mmapiws = window.__mmapiws = window.__mmapiws || {};
+            mmapiws.accountId = "{{ config('MaxMind.config.MaxMindConfigAccountId') }}";
+            var loadDeviceJs = function() {
+                var element = document.createElement('script');
+                element.async = true;
+                element.src = 'https://device.maxmind.com/js/device.js';
+                document.body.appendChild(element);
+            };
+            if (window.addEventListener) {
+                window.addEventListener('load', loadDeviceJs, false);
+            } else if (window.attachEvent) {
+                window.attachEvent('onload', loadDeviceJs);
+            }
+        })();
+    </script>
+{% endblock %}

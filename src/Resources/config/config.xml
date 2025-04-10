@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title lang="en-GB">MaxMind Settings</title>
+        <title lang="de-DE">MaxMind Einstellungen</title>
+        <input-field type="password">
+            <name>MaxMindConfigAccountId</name>
+            <label lang="en-GB">MaxMind Account ID</label>
+            <label lang="de-DE">MaxMind Konto-ID</label>
+            <help lang="en-GB">Enter your MaxMind Account ID here.</help>
+            <help lang="de-DE">Geben Sie hier Ihre MaxMind Konto-ID ein.</help>
+        </input-field>
+
+        <input-field type="password">
+            <name>MaxMindConfigLicenseKey</name>
+            <label lang="en-GB">MaxMind License Key</label>
+            <label lang="de-DE">MaxMind Lizenzschlüssel</label>
+            <help lang="en-GB">Enter your MaxMind license key here.</help>
+            <help lang="de-DE">Geben Sie hier Ihren MaxMind-Lizenzschlüssel ein.</help>
+        </input-field>
+
+        <input-field type="float">
+            <name>MaxMindConfigRiskThreshold</name>
+            <label lang="en-GB">Risk Threshold (range from 0 to 99)</label>
+            <label lang="de-DE">Risikogrenzwert (range from 0 to 99)</label>
+            <help lang="de-DE">Bestellungen mit einem Risikowert über diesem Wert werden auf den Status "Betrugsprüfung" gesetzt.</help>
+            <help lang="en-GB">Orders with a risk score above this value will be set to Fraud Review status.</help>
+            <defaultValue>50</defaultValue>
+        </input-field>
+
+    </card>
+</config>

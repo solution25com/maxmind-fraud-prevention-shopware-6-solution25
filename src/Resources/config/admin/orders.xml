@@ -1,0 +1,9 @@
+<extensions xmlns="http://www.w3.org/2001/XMLSchema">
+    <extension for="order">
+        <fields>
+            <field name="customFields.maxmind_fraud_risk" type="float">
+                <label>Fraud Risk Score</label>
+            </field>
+        </fields>
+    </extension>
+</extensions>
