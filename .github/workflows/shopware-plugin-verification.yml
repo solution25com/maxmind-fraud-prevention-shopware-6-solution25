@@ -44,7 +44,6 @@ jobs:
         with:
           action: check
           check-against: ${{ matrix.version-selection }}
-          reporter: github
 
       - name: ✅ Extension Verifier Passed – No errors found
         if: success() && steps.verifier.outcome == 'success'
