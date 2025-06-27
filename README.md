@@ -127,6 +127,62 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 5. **Order Detail Page with Status Options**
 ![5](https://github.com/user-attachments/assets/aff82a0e-b262-492d-9b2a-d3464da14454)
 
+---
+
+# MaxMind Plugin - API Documentation
+ 
+This documentation describes the custom Admin API endpoint provided by the MaxMind Plugin for Shopware 6.  
+The plugin integrates MaxMind’s fraud detection service to assess the risk level of orders.  
+The endpoint allows retrieval of the fraud risk score for a specific order, helping merchants identify and manage potentially fraudulent transactions.
+ 
+---
+ 
+## Get MaxMind Fraud Details for an Order
+ 
+**Endpoint**  
+`GET /api/_action/maxmind/fraud-details/{orderId}`
+ 
+### Description
+ 
+Retrieves the MaxMind fraud risk score associated with a specific order using its Shopware Order ID.
+ 
+### Request Headers
+ 
+```
+Authorization: Bearer <admin-api-token>
+Content-Type: application/json
+```
+ 
+### Example Request
+ 
+```
+GET /api/_action/maxmind/fraud-details/5b6a139e54e54ed7b7997c71f6f56f9e
+```
+ 
+### Successful Response
+ 
+```json
+{
+  "orderId": "5b6a139e54e54ed7b7997c71f6f56f9e",
+  "fraudRisk": "low"
+}
+```
+ 
+### Example Error Response
+ 
+```json
+{
+  "error": "Order not found"
+}
+```
+ 
+---
+ 
+## Authentication
+ 
+All endpoints require a valid Admin API Bearer token.  
+You can obtain this via the standard Shopware Admin API authentication process.
+
 ## Best Practices
 
 - **Set a Reasonable Threshold**
