@@ -1,0 +1,19 @@
+{
+    "sw-order-detail-general": {
+        "maxmindRiskScores": {
+            "title": "MaxMind Risikobewertungen",
+            "fraudRisk": "Betrugsrisiko",
+            "overallRiskScore": "Gesamtrisiko",
+            "ipRiskScore": "IP-Adressrisiko"
+        },
+        "maxmindFraudDetection": {
+            "title": "MaxMind Betrugserkennung",
+            "viewInMaxMind": "In MaxMind anzeigen",
+            "copyTransactionId": "Transaktions-ID kopieren",
+            "viewWarningsFactors": "Warnungen & Faktoren anzeigen",
+            "noTransactionId": "Keine Transaktions-ID verfügbar.",
+            "transactionIdCopied": "Transaktions-ID wurde in die Zwischenablage kopiert!",
+            "copyFailed": "Kopieren der Transaktions-ID fehlgeschlagen."
+        }
+    }
+}

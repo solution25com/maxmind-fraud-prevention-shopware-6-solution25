@@ -6,17 +6,17 @@
         (function() {
             var mmapiws = window.__mmapiws = window.__mmapiws || {};
             mmapiws.accountId = "{{ config('MaxMind.config.MaxMindConfigAccountId') }}";
-            var loadDeviceJs = function() {
+
+            function loadDeviceJs() {
                 var element = document.createElement('script');
-                element.async = true;
+                element.defer = true;
                 element.src = 'https://device.maxmind.com/js/device.js';
                 document.body.appendChild(element);
-            };
-            if (window.addEventListener) {
-                window.addEventListener('load', loadDeviceJs, false);
-            } else if (window.attachEvent) {
-                window.attachEvent('onload', loadDeviceJs);
             }
+
+            window.addEventListener('load', function() {
+                setTimeout(loadDeviceJs, 3000);
+            });
         })();
     </script>
 {% endblock %}

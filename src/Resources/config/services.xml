@@ -5,13 +5,18 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="MaxMind\Subscriber\OrderPlacedSubscriber" public="true">
+        <service id="MaxMind\Subscriber\OrderPlacedSubscriber">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="MaxMind\Service\MaxMindFraudService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <service id="MaxMind\Service\MaxMindFraudService" public="true">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="MaxMind\Service\MaxMindAverageService"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
         <service id="MaxMind\Controller\OrderDetailController" public="true">
             <argument type="service" id="order.repository"/>

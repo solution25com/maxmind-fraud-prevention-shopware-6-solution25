@@ -1,6 +1,24 @@
+import template from './sw-order-list.html.twig';
+
 import { Component } from 'Shopware';
 
 Component.override('sw-order-list', {
+    template,
+    data() {
+        return {
+            loadedStates: {}, 
+        };
+    },
+    watch: {
+        orders: {
+            handler() {
+                this.loadCountryStates();
+            },
+            immediate: true,
+            deep: true
+        }
+    },
+
     computed: {
         orderColumns() {
             const columns = this.$super('orderColumns');
@@ -21,6 +39,39 @@ Component.override('sw-order-list', {
             });
 
             return columns;
+        },
+    },
+    methods: {
+        async loadCountryStates() {
+            const repo = this.repositoryFactory.create('country_state');
+
+            const stateIds = [...new Set(this.orders.map(order => {
+                const stateId = order.deliveries?.[0]?.shippingOrderAddress?.countryStateId;
+                return stateId;
+            }).filter(Boolean))];
+
+
+            if (stateIds.length === 0) {
+                return;
+            }
+
+            const criteria = new Shopware.Data.Criteria(1, 100);
+            criteria.addFilter(Shopware.Data.Criteria.equalsAny('id', stateIds));
+
+            try {
+                const result = await repo.search(criteria);
+
+                this.loadedStates = result.reduce((acc, state) => {
+                    acc[state.id] = state;
+                    return acc;
+                }, {});
+            } catch (e) {
+                console.error('Failed to load country states:', e);
+            }
+        },
+
+        getStateNameById(id) {
+            return this.loadedStates?.[id]?.name ?? '';
         },
     },
 });

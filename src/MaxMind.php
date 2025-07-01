@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MaxMind;
 
+use MaxMind\Service\CancelledStateInstaller;
 use MaxMind\Service\CompleteStateInstaller;
 use MaxMind\Service\FraudFailStateInstaller;
 use MaxMind\Service\FraudPassStateInstaller;
@@ -31,6 +32,7 @@ class MaxMind extends Plugin
         $this->getFraudFailOrderStateInstaller()->install($context);
         $this->getCompleteOrderStateInstaller()->install($context);
         $this->getInProgressStateInstaller()->install($context);
+        $this->getCancelledStateInstaller()->install($context);
     }
 
     public function uninstall(UninstallContext $uninstallContext): void
@@ -44,11 +46,14 @@ class MaxMind extends Plugin
         $this->getFraudFailOrderStateInstaller()->uninstall($context);
         $this->getCompleteOrderStateInstaller()->uninstall($context);
         $this->getInProgressStateInstaller()->uninstall($context);
+        $this->getCancelledStateInstaller()->uninstall($context);
     }
 
     public function update(UpdateContext $updateContext): void
     {
         parent::update($updateContext);
+        $context = $updateContext->getContext();
+        $this->getCancelledStateInstaller()->install($context);
     }
 
     public function activate(ActivateContext $activateContext): void
@@ -138,6 +143,18 @@ class MaxMind extends Plugin
         }
 
         return new InProgressStateInstaller($this->getStateInstallerHelper());
+    }
+
+    private function getCancelledStateInstaller(): CancelledStateInstaller
+    {
+        if ($this->container->has(CancelledStateInstaller::class)) {
+            $installer = $this->container->get(CancelledStateInstaller::class);
+            if ($installer instanceof CancelledStateInstaller) {
+                return $installer;
+            }
+        }
+
+        return new CancelledStateInstaller($this->getStateInstallerHelper());
     }
 
     private function getStateInstallerHelper(): StateInstallerHelper

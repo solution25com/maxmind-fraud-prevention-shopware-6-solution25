@@ -26,38 +26,54 @@
     background-color: rgb(255, 77, 79);
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__progress-select .sw-single-select__selection-text {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__progress-select
+    .sw-single-select__selection-text {
     color: #189eff !important;
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__progress-select .sw-block-field__block {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__progress-select
+    .sw-block-field__block {
     background-color: #e3f3ff !important;
     border: none !important;
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__completed-select .sw-single-select__selection-text {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__completed-select
+    .sw-single-select__selection-text {
     color: #52c41a !important;
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__completed-select .sw-block-field__block {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__completed-select
+    .sw-block-field__block {
     background-color: #e6f7d9 !important;
     border: none !important;
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__cancelled-select .sw-single-select__selection-text {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__cancelled-select
+    .sw-single-select__selection-text {
     color: #ff4d4f !important;
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__cancelled-select .sw-block-field__block {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__cancelled-select
+    .sw-block-field__block {
     background-color: #ffdbdc !important;
     border: none !important;
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__open-select .sw-single-select__selection-text {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__open-select
+    .sw-single-select__selection-text {
     color: #94a6b8 !important;
 }
 
-.sw-order-general-info__order-state .sw-order-state-select-v2.sw-order-state__open-select .sw-block-field__block {
+.sw-order-general-info__order-state
+    .sw-order-state-select-v2.sw-order-state__open-select
+    .sw-block-field__block {
     background-color: #e8ecef !important;
     border: none !important;
 }
@@ -112,6 +128,7 @@
 .sw-order-detail-general__maxmind-actions {
     display: flex;
     gap: 10px;
+    align-items: center;
     margin-bottom: 15px;
     color: white;
 }
@@ -135,3 +152,4 @@
 .sw-order-detail-general__maxmind-warnings-factors li {
     margin-bottom: 5px;
 }
+
