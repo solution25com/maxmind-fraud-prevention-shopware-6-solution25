@@ -1,3 +1,7 @@
+[![Packagist Version](https://img.shields.io/packagist/v/solution25/maxmind.svg)](https://packagist.org/packages/solution25/maxmind)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/solution25/maxmind.svg)](https://packagist.org/packages/solution25/maxmind)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/solution25/PayTrace/blob/main/LICENSE)
+
 ![1](https://github.com/user-attachments/assets/d37c88d5-0bdd-4ca9-ba14-9d2a26cc988a)
 
 # MaxMind Fraud Prevention
