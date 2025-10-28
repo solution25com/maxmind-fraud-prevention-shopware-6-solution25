@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace MaxMind\Service;
@@ -111,7 +112,7 @@ class StateInstallerHelper
         if (!empty($deleteIds)) {
             try {
                 $this->stateMachineTransitionRepository->delete(
-                    array_map(fn ($id) => ['id' => $id], $deleteIds),
+                    array_map(fn($id) => ['id' => $id], $deleteIds),
                     $context
                 );
             } catch (\Exception) {
@@ -142,16 +143,14 @@ class StateInstallerHelper
         ]));
         $historyDeleteIds = $this->stateMachineHistoryRepository->searchIds($historyCriteria, $context)->getIds();
 
-        $stateDeleteIds = array_map(fn ($id) => ['id' => $id], $stateDeleteIds);
-        $transitionDeleteIds = array_map(fn ($id) => ['id' => $id], $transitionDeleteIds);
-        $historyDeleteIds = array_map(fn ($id) => ['id' => $id], $historyDeleteIds);
+        $stateDeleteIds = array_map(fn($id) => ['id' => $id], $stateDeleteIds);
+        $transitionDeleteIds = array_map(fn($id) => ['id' => $id], $transitionDeleteIds);
+        $historyDeleteIds = array_map(fn($id) => ['id' => $id], $historyDeleteIds);
 
-        // Perform batch deletions
         if (!empty($transitionDeleteIds)) {
             try {
                 $this->stateMachineTransitionRepository->delete($transitionDeleteIds, $context);
             } catch (\Exception) {
-                // Log error if necessary, but continue execution
             }
         }
 
@@ -159,7 +158,6 @@ class StateInstallerHelper
             try {
                 $this->stateMachineHistoryRepository->delete($historyDeleteIds, $context);
             } catch (\Exception) {
-                // Log error if necessary, but continue execution
             }
         }
 
@@ -167,16 +165,14 @@ class StateInstallerHelper
             try {
                 $this->stateMachineStateRepository->delete($stateDeleteIds, $context);
             } catch (\Exception) {
-                // Log error if necessary, but continue execution
             }
         }
     }
 
     private function preloadStates(array $actions, string $stateMachineId, Context $context): array
     {
-        if (!$this->stateIds) {
-            $this->stateIds = [];
-        }
+        $this->stateIds ??= [];
+        $this->stateIds[$stateMachineId] ??= [];
 
         $stateNames = [];
         foreach ($actions as $states) {
@@ -196,14 +192,13 @@ class StateInstallerHelper
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsAnyFilter('technicalName', array_keys($stateNames)));
             $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
-            $this->stateIds[$stateMachineId] = [];
-
             $states = $this->stateMachineStateRepository->search($criteria, $context);
-            foreach ($states as $state) {
+            foreach ($states->getElements() as $state) {
+                /** @var \Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity $state */
                 $this->stateIds[$stateMachineId][$state->getTechnicalName()] = $state->getId();
             }
         }
 
-        return $this->stateIds[$stateMachineId];
+        return $this->stateIds[$stateMachineId] ?? [];
     }
 }

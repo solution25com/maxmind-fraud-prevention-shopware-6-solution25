@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace MaxMind\Service;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 
 class MaxMindAverageService
 {
@@ -32,7 +34,8 @@ class MaxMindAverageService
         $this->logger->info('Retrieved from SystemConfigService - Last calculation time: ' . ($lastCalculationTime ??
                 'null') . ', Overall risk score: ' . ($overallRiskScore ?? 'null'));
 
-        if ($lastCalculationTime && $overallRiskScore) {
+
+        if ($lastCalculationTime && $overallRiskScore !== null) {
             $currentTime = time();
             $timeDifference = $currentTime - $lastCalculationTime;
 
@@ -52,10 +55,10 @@ class MaxMindAverageService
 
         $newLastCalculationTime = time();
         $newOverallRiskScore = $averages['overall_risk_average'];
-
         $this->logger->info("Saving new data to SystemConfigService - Last calculation time: $newLastCalculationTime, Overall risk score: $newOverallRiskScore");
-
         $this->systemConfigService->set($lastCalculationTimeKey, $newLastCalculationTime, $salesChannelId);
+
+
         $this->systemConfigService->set($overallRiskScoreKey, $newOverallRiskScore, $salesChannelId);
 
         $this->logger->info("Returning newly calculated overall risk score: $newOverallRiskScore");
@@ -80,11 +83,13 @@ class MaxMindAverageService
         $criteria->setLimit(100000);
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
+        /** @var \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection<OrderEntity> $orders */
         $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
         $fraudRiskScores = [];
         $ipRiskScores = [];
 
+        /** @var OrderEntity $order */
         foreach ($orders as $order) {
             $customFields = $order->getCustomFields() ?? [];
             if (isset($customFields['maxmind_fraud_risk'])) {

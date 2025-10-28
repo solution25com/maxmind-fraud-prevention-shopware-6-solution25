@@ -5,8 +5,9 @@
     "version": "1.2.1",
     "license": "MIT",
     "require": {
-        "shopware/core": "~6.6.0",
-        "maxmind/minfraud": "^3.2"
+        "shopware/core": "~6.6 || ~6.7",
+        "maxmind/minfraud": "^3.3",
+        "shopware/storefront": "~6.6 || ~6.7"
     },
     "extra": {
         "shopware-plugin-class": "MaxMind\\MaxMind",
@@ -15,8 +16,8 @@
             "en-GB": "MaxMind Order Fraud Detection"
         },
         "description": {
-            "de-DE": "MaxMind Integration für Betrugserkennung",
-            "en-GB": "MaxMind integration for fraud detection"
+            "de-DE": "Diese MaxMind-Integration erkennt und verhindert automatisch betrügerische Bestellungen in Ihrem Shopware-6-Shop. Analysiert Bestellungen in Echtzeit anhand von Risikofaktoren.",
+            "en-GB": "This MaxMind integration automatically detects and prevents fraudulent orders in your Shopware 6 store by analyzing transactions in real time with advanced risk scoring."
         },
         "manufacturerLink": {
             "de-DE": "https://solution25.com/",
@@ -43,5 +44,25 @@
         "psr-4": {
             "MaxMind\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@enable-prepush"
+        ],
+        "post-update-cmd": [
+            "@enable-prepush"
+        ],
+        "enable-prepush": [
+            "cp ./pre-push .git/hooks/pre-push",
+            "chmod +x .git/hooks/pre-push"
+        ]
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^4.0"
     }
 }
