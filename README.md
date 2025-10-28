@@ -27,7 +27,8 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
    - Works with Shopware 6.4–6.5 and future updates.
   
 ## Compatibility
-- ✅ Shopware 6.6.x 
+- ✅ Shopware 6.6.x
+- ✅ Shopware 6.7.x 
 
 ## Get Started
 
