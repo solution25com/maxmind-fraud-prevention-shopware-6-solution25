@@ -14,6 +14,19 @@
             "noTransactionId": "No Transaction ID available.",
             "transactionIdCopied": "Transaction ID copied to clipboard!",
             "copyFailed": "Failed to copy Transaction ID."
+        },
+        "fraud-risk-score": {
+            "title": "Fraud Risk Score"
+        }
+    },
+    "solu1-maxmind-config": {
+        "apiTest": {
+            "button": "Test API Connection",
+            "successTitle": "Connection successful",
+            "successMessage": "The MaxMind credentials are valid.",
+            "errorTitle": "Connection failed",
+            "errorMessage": "The connection test failed.",
+            "missingCredentials": "Please enter your Account ID and License Key before running the test."
         }
     }
 }

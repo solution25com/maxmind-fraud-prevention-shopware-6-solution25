@@ -1,0 +1,11 @@
+{
+  "main.js": {
+    "file": "assets/max-mind-CnL4AcM1.js",
+    "name": "max-mind",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "assets/max-mind-C1QDKznv.css"
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace MaxMind\Service;
@@ -11,11 +12,11 @@ class FraudPassStateInstaller
     private const NEW_STATE_TECHNICAL_NAME = 'fraud_pass';
     private const NEW_STATE_NAME = 'Fraud Pass';
     private const TRANSITIONS
-        = [
-            'mark_as_fraud_pass' => ['from' => 'open', 'to' => 'fraud_pass'],
-            'mark_as_fraud_manual_review' => ['from' => 'fraud_pass', 'to' => 'fraud_review'],
-            'mark_as_fraud_manual_pass' => ['from' => 'fraud_review', 'to' => 'fraud_pass'],
-        ];
+    = [
+        'mark_as_fraud_pass' => ['from' => 'fraud_review', 'to' => 'fraud_pass'],
+        'mark_as_fraud_review' => ['from' => 'fraud_pass', 'to' => 'fraud_review'],
+        'mark_open_as_fraud_pass' => ['from' => 'open', 'to' => 'fraud_pass'],
+    ];
 
     public function __construct(
         private readonly StateInstallerHelper $stateInstallerHelper,
@@ -44,6 +45,7 @@ class FraudPassStateInstaller
         if ($stateMachineId === null) {
             return;
         }
+
         $this->stateInstallerHelper->removeTransitions(self::TRANSITIONS, $context);
         $this->stateInstallerHelper->removeState(self::NEW_STATE_TECHNICAL_NAME, $stateMachineId, $context);
     }

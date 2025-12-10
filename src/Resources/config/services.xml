@@ -37,5 +37,19 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="logger"/>
         </service>
+
+        <service id="MaxMind\Service\CookieProvider" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
+            <argument type="service" id="MaxMind\Service\CookieProvider.inner"/>
+        </service>
+
+        <service id="MaxMind\Service\MaxMindConnectionTester">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="MaxMind\Controller\Admin\MaxMindConnectionController" public="true">
+            <argument type="service" id="MaxMind\Service\MaxMindConnectionTester"/>
+            <tag name="controller.service_arguments"/>
+        </service>
     </services>
 </container>

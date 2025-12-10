@@ -1,7 +1,3 @@
-[![Packagist Version](https://img.shields.io/packagist/v/solution25/maxmind.svg)](https://packagist.org/packages/solution25/maxmind)
-[![Packagist Downloads](https://img.shields.io/packagist/dt/solution25/maxmind.svg)](https://packagist.org/packages/solution25/maxmind)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/solution25com/maxmind-fraud-prevention-shopware-6-solution25/blob/main/LICENSE.md)
-
 ![1](https://github.com/user-attachments/assets/d37c88d5-0bdd-4ca9-ba14-9d2a26cc988a)
 
 # MaxMind Fraud Prevention
@@ -24,10 +20,7 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 5. **Easy Monitoring**
    - Displays fraud scores in the Orders grid and Order Detail view.
 6. **Shopware Compatibility**
-   - Works with Shopware 6.4–6.5 and future updates.
-  
-## Compatibility
-- ✅ Shopware 6.6.x 
+   - Works with Shopware 6.4–6.6 and future updates.
 
 ## Get Started
 
@@ -133,62 +126,6 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
 
 5. **Order Detail Page with Status Options**
 ![5](https://github.com/user-attachments/assets/aff82a0e-b262-492d-9b2a-d3464da14454)
-
----
-
-# MaxMind Plugin - API Documentation
- 
-This documentation describes the custom Admin API endpoint provided by the MaxMind Plugin for Shopware 6.  
-The plugin integrates MaxMind’s fraud detection service to assess the risk level of orders.  
-The endpoint allows retrieval of the fraud risk score for a specific order, helping merchants identify and manage potentially fraudulent transactions.
- 
----
- 
-## Get MaxMind Fraud Details for an Order
- 
-**Endpoint**  
-`GET /api/_action/maxmind/fraud-details/{orderId}`
- 
-### Description
- 
-Retrieves the MaxMind fraud risk score associated with a specific order using its Shopware Order ID.
- 
-### Request Headers
- 
-```
-Authorization: Bearer <admin-api-token>
-Content-Type: application/json
-```
- 
-### Example Request
- 
-```
-GET /api/_action/maxmind/fraud-details/5b6a139e54e54ed7b7997c71f6f56f9e
-```
- 
-### Successful Response
- 
-```json
-{
-  "orderId": "5b6a139e54e54ed7b7997c71f6f56f9e",
-  "fraudRisk": "low"
-}
-```
- 
-### Example Error Response
- 
-```json
-{
-  "error": "Order not found"
-}
-```
- 
----
- 
-## Authentication
- 
-All endpoints require a valid Admin API Bearer token.  
-You can obtain this via the standard Shopware Admin API authentication process.
 
 ## Best Practices
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MaxMind\Service;
 
@@ -11,6 +13,7 @@ class InProgressStateInstaller
     private const NEW_STATE_NAME = 'In Progress';
     private const TRANSITIONS = [
         'mark_as_in_progress' => ['from' => 'fraud_pass', 'to' => 'in_progress'],
+        'mark_as_in_progress_from_open' => ['from' => 'open', 'to' => 'in_progress'],
         'mark_as_fraud_pass_from_in_progress' => ['from' => 'in_progress', 'to' => 'fraud_pass'],
     ];
 

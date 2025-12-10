@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MaxMind\Subscriber;
 
@@ -43,7 +45,10 @@ class OrderPlacedSubscriber implements EventSubscriberInterface
             $orderSearchResult = $this->orderRepository->search($criteria, $context);
             $order = $orderSearchResult->first();
 
-            // Process fraud check for non-Authorize.net payments
+            if (!$order instanceof OrderEntity) {
+                $this->logger->error('Order not found for ID: ' . $orderId);
+                return;
+            }
             $this->maxMindFraudService->processFraudCheck($order, $context, $event->getSalesChannelId());
         } catch (\Exception $e) {
             $this->logger->error('Error processing order: ' . $e->getMessage());

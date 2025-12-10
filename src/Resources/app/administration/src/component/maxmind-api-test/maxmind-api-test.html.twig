@@ -1,0 +1,12 @@
+{% block solu1_maxmind_api_test_button %}
+    <div class="solu1-maxmind-api-test">
+        <sw-button-process
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            @process-finish="onProcessFinish"
+            @click="checkConnection"
+        >
+            {{ $tc('solu1-maxmind-config.apiTest.button') }}
+        </sw-button-process>
+    </div>
+{% endblock %}

@@ -2,6 +2,14 @@
     background-color: rgb(24, 144, 255);
 }
 
+.sw-button_content{
+    background-color: rgb(24, 158, 255);
+    color: white;
+}
+.sw-button_content::after{
+    color:white;
+}
+
 .sw-color-badge--completed {
     background-color: rgb(82, 196, 26);
 }
@@ -29,53 +37,57 @@
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__progress-select
     .sw-single-select__selection-text {
-    color: #189eff !important;
+    color: #189eff;
 }
 
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__progress-select
     .sw-block-field__block {
-    background-color: #e3f3ff !important;
-    border: none !important;
+    background-color: #e3f3ff;
+    border: none;
+    box-shadow: none;
 }
 
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__completed-select
     .sw-single-select__selection-text {
-    color: #52c41a !important;
+    color: #52c41a;
 }
 
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__completed-select
     .sw-block-field__block {
-    background-color: #e6f7d9 !important;
-    border: none !important;
+    background-color: #e6f7d9;
+    border: none;
+    box-shadow: none;
 }
 
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__cancelled-select
     .sw-single-select__selection-text {
-    color: #ff4d4f !important;
+    color: #ff4d4f;
 }
 
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__cancelled-select
     .sw-block-field__block {
-    background-color: #ffdbdc !important;
-    border: none !important;
+    background-color: #ffdbdc;
+    border: none;
+    box-shadow: none;
 }
 
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__open-select
     .sw-single-select__selection-text {
-    color: #94a6b8 !important;
+    color: #94a6b8;
 }
 
 .sw-order-general-info__order-state
     .sw-order-state-select-v2.sw-order-state__open-select
     .sw-block-field__block {
-    background-color: #e8ecef !important;
-    border: none !important;
+    background-color: #e8ecef;
+    border: none;
+    box-shadow: none;
 }
 
 .sw-order-detail-general__maxmind-risk-scores {
@@ -132,11 +144,24 @@
     margin-bottom: 15px;
     color: white;
 }
-.sw-order-detail-general__maxmind-actions a {
-    color: white !important;
+.sw-order-detail-general__maxmind-actions .sw-button:not(.sw-button--primary) {
+    color: #1f2a44;
 }
-.sw-order-detail-general__maxmind-actions a::after {
-    background-color: white !important;
+.sw-order-detail-general__maxmind-actions .sw-button:not(.sw-button--primary)::after {
+    background-color: #1f2a44;
+}
+
+.sw-order-detail-general__maxmind-actions .sw-button--primary {
+    color: #ffffff;
+}
+
+.sw-order-detail-general__maxmind-actions .sw-button--primary::after {
+    background-color: #ffffff;
+}
+
+.sw-order-detail-general__maxmind-actions .sw-button--primary .sw-button__content,
+.sw-order-detail-general__maxmind-actions .sw-button--primary .sw-button__text {
+    color: #ffffff;
 }
 .sw-order-detail-general__maxmind-warnings-factors {
     background-color: #f0f2f5;

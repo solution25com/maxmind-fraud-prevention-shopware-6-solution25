@@ -1,73 +1,54 @@
 {% block sw_order_detail_general %}
     <sw-card v-if="hasMaxMindData">
-        <div
-            class="sw-order-detail-general__maxmind-risk-scores"
-        >
-            <h3>
+        <div class="sw-order-detail-general__maxmind-risk-scores">
+            <span class="h2">
                 {{ $tc('sw-order-detail-general.maxmindRiskScores.title') }}
-            </h3>
-            <div
-                class="sw-order-detail-general__maxmind-scores"
-            >
-                <div
-                    class="sw-order-detail-general__maxmind-score"
-                >
-                    <strong>
-                        {{ $tc('sw-order-detail-general.maxmindRiskScores.fraudRisk') }}
-                    </strong>
+            </span>
+
+            <div class="sw-order-detail-general__maxmind-scores">
+                <div class="sw-order-detail-general__maxmind-score">
+                    <strong>{{ $tc('sw-order-detail-general.maxmindRiskScores.fraudRisk') }}</strong>
                     <span>{{ fraudScore }}</span>
                 </div>
-                <div
-                    class="sw-order-detail-general__maxmind-score"
-                >
-                    <strong>
-                        {{ $tc('sw-order-detail-general.maxmindRiskScores.overallRiskScore') }}
-                    </strong>
+                <div class="sw-order-detail-general__maxmind-score">
+                    <strong>{{ $tc('sw-order-detail-general.maxmindRiskScores.overallRiskScore') }}</strong>
                     <span>{{ overallRiskScore }}</span>
                 </div>
-                <div
-                    class="sw-order-detail-general__maxmind-score"
-                >
-                    <strong>
-                        {{ $tc('sw-order-detail-general.maxmindRiskScores.ipRiskScore') }}
-                    </strong>
+                <div class="sw-order-detail-general__maxmind-score">
+                    <strong>{{ $tc('sw-order-detail-general.maxmindRiskScores.ipRiskScore') }}</strong>
                     <span>{{ ipRiskScore }}</span>
                 </div>
             </div>
-            <div
-                class="sw-order-detail-general__maxmind-actions"
-            >
-                <a
-                    :href="transactionUrl"
-                    target="_blank"
-                    class="sw-button sw-button--primary"
+
+            <div class="sw-order-detail-general__maxmind-actions">
+                <sw-button
+                    variant="primary"
+                    @click="openMaxMind"
                 >
                     {{ $tc('sw-order-detail-general.maxmindFraudDetection.viewInMaxMind') }}
-                </a>
+                </sw-button>
+
+
                 <sw-button
-                    variant="ghost"
-                    @click="copyTransactionId"
+                        variant="secondary"
+                        :disabled="!transactionId"
+                        @click="copyTransactionId"
                 >
                     {{ $tc('sw-order-detail-general.maxmindFraudDetection.copyTransactionId') }}
                 </sw-button>
+
                 <sw-button
-                    variant="ghost"
-                    @click="toggleWarningsFactors"
+                        variant="secondary"
+                        :disabled="!warningsFactors.length"
+                        @click="toggleWarningsFactors"
                 >
                     {{ $tc('sw-order-detail-general.maxmindFraudDetection.viewWarningsFactors') }}
                 </sw-button>
             </div>
-            <div
-                v-if="showWarningsFactors"
-                class="sw-order-detail-general__maxmind-warnings-factors"
-            >
+
+            <div v-if="showWarningsFactors" class="sw-order-detail-general__maxmind-warnings-factors">
                 <ul>
-                    <li
-                        v-for="factor in warningsFactors"
-                        :key="factor"
-                    >
-                        {{ factor }}
-                    </li>
+                    <li v-for="factor in warningsFactors" :key="factor">{{ factor }}</li>
                 </ul>
             </div>
         </div>
