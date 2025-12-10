@@ -1,33 +1,53 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MaxMind\Controller;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Attribute\Route;
 
-#[\Symfony\Component\Routing\Attribute\Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: ['_routeScope' => ['api']])]
 class OrderDetailController extends AbstractController
 {
-    public function __construct(private readonly EntityRepository $orderRepository)
+    /** @var EntityRepository<OrderCollection> */
+    private readonly EntityRepository $orderRepository;
+
+    /**
+     * @param EntityRepository<OrderCollection> $orderRepository
+     */
+    public function __construct(EntityRepository $orderRepository)
     {
+        $this->orderRepository = $orderRepository;
     }
 
-    #[\Symfony\Component\Routing\Attribute\Route('/api/_action/maxmind/fraud-details/{orderId}', name: 'api.action.maxmind.fraud_details', methods: ['GET'])]
-    public function getFraudDetails(string $orderId, Context $context)
+    #[Route(
+        path: '/api/_action/maxmind/fraud-details/{orderId}',
+        name: 'api.action.maxmind.fraud_details',
+        methods: ['GET']
+    )]
+    public function getFraudDetails(string $orderId, Context $context): JsonResponse
     {
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('customFields');
 
-        $order = $this->orderRepository->search($criteria, $context)->first();
-        if (!$order) {
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
+        if (!$order instanceof OrderEntity) {
             return $this->json(['error' => 'Order not found'], 404);
         }
 
+        $customFields = $order->getCustomFields() ?? [];
+        $fraudRisk = $customFields['maxmind_fraud_risk'] ?? 'N/A';
+
         return $this->json([
-            'orderId' => $order->getId(),
-            'fraudRisk' => $order->getCustomFields()['maxmind_fraud_risk'] ?? 'N/A',
+            'orderId'   => $order->getId(),
+            'fraudRisk' => $fraudRisk,
         ]);
     }
 }

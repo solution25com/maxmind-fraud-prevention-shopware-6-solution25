@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace MaxMind;
@@ -177,5 +178,10 @@ class MaxMind extends Plugin
         }
 
         return $this->stateInstallerHelper;
+    }
+
+    public function executeComposerCommands(): bool
+    {
+        return true;
     }
 }

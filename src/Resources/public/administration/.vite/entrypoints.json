@@ -1,0 +1,25 @@
+{
+  "base": "/bundles/maxmind/administration/",
+  "entryPoints": {
+    "max-mind": {
+      "css": [
+        "/bundles/maxmind/administration/assets/max-mind-C1QDKznv.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/maxmind/administration/assets/max-mind-CnL4AcM1.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

@@ -1,22 +1,24 @@
 import template from './sw-order-list.html.twig';
 
-import { Component } from 'Shopware';
+const { Component } = Shopware;
 
 Component.override('sw-order-list', {
     template,
+    inject: ['repositoryFactory'],
     data() {
         return {
-            loadedStates: {}, 
+            loadedStates: {},
         };
     },
+
     watch: {
         orders: {
             handler() {
                 this.loadCountryStates();
             },
             immediate: true,
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     computed: {
@@ -41,26 +43,24 @@ Component.override('sw-order-list', {
             return columns;
         },
     },
+
     methods: {
         async loadCountryStates() {
             const repo = this.repositoryFactory.create('country_state');
 
-            const stateIds = [...new Set(this.orders.map(order => {
-                const stateId = order.deliveries?.[0]?.shippingOrderAddress?.countryStateId;
-                return stateId;
-            }).filter(Boolean))];
+            const stateIds = [...new Set(
+                (this.orders || [])
+                    .map(order => order?.deliveries?.[0]?.shippingOrderAddress?.countryStateId)
+                    .filter(Boolean)
+            )];
 
-
-            if (stateIds.length === 0) {
-                return;
-            }
+            if (!stateIds.length) return;
 
             const criteria = new Shopware.Data.Criteria(1, 100);
             criteria.addFilter(Shopware.Data.Criteria.equalsAny('id', stateIds));
 
             try {
                 const result = await repo.search(criteria);
-
                 this.loadedStates = result.reduce((acc, state) => {
                     acc[state.id] = state;
                     return acc;

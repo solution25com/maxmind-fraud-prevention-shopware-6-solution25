@@ -57,12 +57,20 @@ Shopware.Component.override('sw-order-detail-general', {
     },
 
     methods: {
+        openMaxMind() {
+            if (this.transactionUrl && this.transactionUrl !== '#') {
+                window.top.open(this.transactionUrl, '_blank'); // <-- important
+            } else {
+                this.createNotificationError({
+                    title: 'MaxMind',
+                    message: 'No valid transaction URL found.'
+                });
+            }
+        },
         copyTransactionId() {
             if (!this.transactionId) {
                 this.createNotificationError({
-                    message: this.$tc(
-                        'sw-order-detail-general.maxmindFraudDetection.noTransactionId'
-                    ),
+                    message: this.$tc('sw-order-detail-general.maxmindFraudDetection.noTransactionId'),
                 });
                 return;
             }
@@ -71,36 +79,18 @@ Shopware.Component.override('sw-order-detail-general', {
                 .writeText(this.transactionId)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc(
-                            'sw-order-detail-general.maxmindFraudDetection.transactionIdCopied'
-                        ),
+                        message: this.$tc('sw-order-detail-general.maxmindFraudDetection.transactionIdCopied'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc(
-                            'sw-order-detail-general.maxmindFraudDetection.copyFailed'
-                        ),
+                        message: this.$tc('sw-order-detail-general.maxmindFraudDetection.copyFailed'),
                     });
                 });
         },
 
         toggleWarningsFactors() {
             this.showWarningsFactors = !this.showWarningsFactors;
-        },
-
-        createNotificationSuccess({ message }) {
-            this.$root.$emit('notification-create', {
-                type: 'success',
-                message,
-            });
-        },
-
-        createNotificationError({ message }) {
-            this.$root.$emit('notification-create', {
-                type: 'error',
-                message,
-            });
         },
     },
 });

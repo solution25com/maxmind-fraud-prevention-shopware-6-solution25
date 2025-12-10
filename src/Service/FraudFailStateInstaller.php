@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace MaxMind\Service;
@@ -11,10 +12,10 @@ class FraudFailStateInstaller
     private const NEW_STATE_TECHNICAL_NAME = 'fraud_fail';
     private const NEW_STATE_NAME = 'Fraud Fail';
     private const TRANSITIONS
-        = [
-            'mark_as_fraud_fail' => ['from' => 'fraud_review', 'to' => 'fraud_fail'],
-            'mark_as_fraud_review' => ['from' => 'fraud_fail', 'to' => 'fraud_review'],
-        ];
+    = [
+        'mark_as_fraud_fail' => ['from' => 'fraud_review', 'to' => 'fraud_fail'],
+        'mark_as_fraud_review' => ['from' => 'fraud_fail', 'to' => 'fraud_review'],
+    ];
 
     public function __construct(
         private readonly StateInstallerHelper $stateInstallerHelper,

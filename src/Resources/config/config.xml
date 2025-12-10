@@ -5,7 +5,7 @@
     <card>
         <title lang="en-GB">MaxMind Settings</title>
         <title lang="de-DE">MaxMind Einstellungen</title>
-        <input-field type="password">
+        <input-field type="int">
             <name>MaxMindConfigAccountId</name>
             <label lang="en-GB">MaxMind Account ID</label>
             <label lang="de-DE">MaxMind Konto-ID</label>
@@ -29,6 +29,10 @@
             <help lang="en-GB">Orders with a risk score above this value will be set to Fraud Review status.</help>
             <defaultValue>50</defaultValue>
         </input-field>
+
+        <component name="maxmind-api-test">
+            <name>MaxMindApiTest</name>
+        </component>
 
     </card>
 </config>
