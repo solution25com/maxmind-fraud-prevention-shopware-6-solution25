@@ -25,79 +25,84 @@ class MaxMindAverageService
 
     public function getOverallRiskScore(Context $context, ?string $salesChannelId = null): float
     {
-        $lastCalculationTimeKey = 'MaxMind.config.lastCalculationTime';
         $overallRiskScoreKey = 'MaxMind.config.overallRiskScore';
-
-        $lastCalculationTime = $this->systemConfigService->get($lastCalculationTimeKey, $salesChannelId);
         $overallRiskScore = $this->systemConfigService->get($overallRiskScoreKey, $salesChannelId);
 
-        $this->logger->info('Retrieved from SystemConfigService - Last calculation time: ' . ($lastCalculationTime ??
-                'null') . ', Overall risk score: ' . ($overallRiskScore ?? 'null'));
-
-
-        if ($lastCalculationTime && $overallRiskScore !== null) {
-            $currentTime = time();
-            $timeDifference = $currentTime - $lastCalculationTime;
-
-            $this->logger->info("Current time: $currentTime, Time difference: $timeDifference seconds");
-
-            if ($timeDifference < 10800) {
-                $this->logger->info("Using stored overall risk score: $overallRiskScore");
-
-                return (float) $overallRiskScore;
-            }
-            $this->logger->info('Stored data is older than 3 hours, recalculating...');
-        } else {
-            $this->logger->info('No valid data in SystemConfigService, proceeding to calculate...');
+        if ($overallRiskScore !== null) {
+            $this->logger->info("Using cached overall risk score: $overallRiskScore");
+            return (float)$overallRiskScore;
         }
 
-        $averages = $this->calculateAverages($context);
+        $this->logger->info('No cached risk score found, calculating for the first time...');
+        $averages = $this->calculateAverages($context, 1000);
 
-        $newLastCalculationTime = time();
         $newOverallRiskScore = $averages['overall_risk_average'];
-        $this->logger->info("Saving new data to SystemConfigService - Last calculation time: $newLastCalculationTime, Overall risk score: $newOverallRiskScore");
-        $this->systemConfigService->set($lastCalculationTimeKey, $newLastCalculationTime, $salesChannelId);
 
-
+        $this->systemConfigService->set('MaxMind.config.lastCalculationTime', time(), $salesChannelId);
         $this->systemConfigService->set($overallRiskScoreKey, $newOverallRiskScore, $salesChannelId);
+        $this->systemConfigService->set(
+            'MaxMind.config.fraudRiskAverage',
+            $averages['fraud_risk_average'],
+            $salesChannelId
+        );
+        $this->systemConfigService->set('MaxMind.config.ipRiskAverage', $averages['ip_risk_average'], $salesChannelId);
 
-        $this->logger->info("Returning newly calculated overall risk score: $newOverallRiskScore");
+        $this->logger->info("Calculated and cached overall risk score: $newOverallRiskScore");
 
         return $newOverallRiskScore;
     }
 
-    public function calculateAverages(Context $context): array
+
+    public function calculateAverages(Context $context, int $maxOrders = 10000, int $batchSize = 1000): array
     {
         $startTime = microtime(true);
-        $this->logger->info('Starting calculation of averages...');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [
-                new EqualsFilter('customFields.maxmind_fraud_risk', null),
-                new EqualsFilter('customFields.maxmind_ip_risk_score', null),
-            ]
-        ));
-
-        $criteria->setLimit(100000);
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection<OrderEntity> $orders */
-        $orders = $this->orderRepository->search($criteria, $context)->getEntities();
+        $this->logger->info(
+            "Starting batch calculation of averages (max: $maxOrders orders, batch size: $batchSize)..."
+        );
 
         $fraudRiskScores = [];
         $ipRiskScores = [];
+        $offset = 0;
+        $totalProcessed = 0;
 
-        /** @var OrderEntity $order */
-        foreach ($orders as $order) {
-            $customFields = $order->getCustomFields() ?? [];
-            if (isset($customFields['maxmind_fraud_risk'])) {
-                $fraudRiskScores[] = (float) $customFields['maxmind_fraud_risk'];
+        while ($offset < $maxOrders) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('customFields.maxmind_fraud_risk', null),
+                    new EqualsFilter('customFields.maxmind_ip_risk_score', null),
+                ]
+            ));
+
+            $criteria->setLimit($batchSize);
+            $criteria->setOffset($offset);
+            $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+
+            $orders = $this->orderRepository->search($criteria, $context)->getEntities();
+
+            if ($orders->count() === 0) {
+                $this->logger->info("MaxMind: No more orders to process. Total processed: $totalProcessed");
+                break;
             }
-            if (isset($customFields['maxmind_ip_risk_score'])) {
-                $ipRiskScores[] = (float) $customFields['maxmind_ip_risk_score'];
+
+            foreach ($orders as $order) {
+                /** @var OrderEntity $order */
+                $customFields = $order->getCustomFields() ?? [];
+                if (isset($customFields['maxmind_fraud_risk'])) {
+                    $fraudRiskScores[] = (float)$customFields['maxmind_fraud_risk'];
+                }
+                if (isset($customFields['maxmind_ip_risk_score'])) {
+                    $ipRiskScores[] = (float)$customFields['maxmind_ip_risk_score'];
+                }
             }
+
+            $totalProcessed += $orders->count();
+            $offset += $batchSize;
+
+            $this->logger->info("MaxMind: Processed batch - Total orders: $totalProcessed");
+            unset($orders);
+            gc_collect_cycles();
         }
 
         $fraudRiskAverage = !empty($fraudRiskScores) ? array_sum($fraudRiskScores) / \count($fraudRiskScores) : 0.0;
@@ -105,13 +110,14 @@ class MaxMindAverageService
         $overallRiskAverage = ($fraudRiskAverage + $ipRiskAverage) / 2;
 
         $endTime = microtime(true);
-        $executionTime = $endTime - $startTime;
-        $this->logger->info("Calculation completed in $executionTime seconds");
+        $executionTime = round($endTime - $startTime, 2);
+        $this->logger->info("Calculation completed in $executionTime seconds. Total orders: $totalProcessed");
 
         return [
             'fraud_risk_average' => round($fraudRiskAverage, 2),
             'ip_risk_average' => round($ipRiskAverage, 2),
             'overall_risk_average' => round($overallRiskAverage, 2),
+            'total_orders_processed' => $totalProcessed,
         ];
     }
 }

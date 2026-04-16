@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace MaxMind;
 
-use MaxMind\Service\CancelledStateInstaller;
-use MaxMind\Service\CompleteStateInstaller;
-use MaxMind\Service\FraudFailStateInstaller;
-use MaxMind\Service\FraudPassStateInstaller;
-use MaxMind\Service\FraudReviewCustomFieldsInstaller;
-use MaxMind\Service\FraudReviewStateInstaller;
-use MaxMind\Service\InProgressStateInstaller;
-use MaxMind\Service\PendingFraudReviewStateInstaller;
-use MaxMind\Service\StateInstallerHelper;
+use MaxMind\Service\Installer\CancelledStateInstaller;
+use MaxMind\Service\Installer\CompleteStateInstaller;
+use MaxMind\Service\Installer\FraudFailStateInstaller;
+use MaxMind\Service\Installer\FraudPassStateInstaller;
+use MaxMind\Service\Installer\FraudReviewCustomFieldsInstaller;
+use MaxMind\Service\Installer\FraudReviewStateInstaller;
+use MaxMind\Service\Installer\InProgressStateInstaller;
+use MaxMind\Service\Installer\PendingFraudReviewStateInstaller;
+use MaxMind\Service\Installer\StateInstallerHelper;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -28,12 +28,22 @@ class MaxMind extends Plugin
         parent::install($installContext);
         $context = $installContext->getContext();
         $this->getOrderStateInstaller()->install($context);
-        $this->getCustomFieldsInstaller()->install($context);
+        $this->getPendingOrderStateInstaller()->install($context);
         $this->getFraudPassOrderStateInstaller()->install($context);
         $this->getFraudFailOrderStateInstaller()->install($context);
         $this->getCompleteOrderStateInstaller()->install($context);
         $this->getInProgressStateInstaller()->install($context);
         $this->getCancelledStateInstaller()->install($context);
+
+        $this->getOrderStateInstaller()->installTransitions($context);
+        $this->getPendingOrderStateInstaller()->installTransitions($context);
+        $this->getFraudPassOrderStateInstaller()->installTransitions($context);
+        $this->getFraudFailOrderStateInstaller()->installTransitions($context);
+        $this->getCompleteOrderStateInstaller()->installTransitions($context);
+        $this->getInProgressStateInstaller()->installTransitions($context);
+        $this->getCancelledStateInstaller()->installTransitions($context);
+
+        $this->getCustomFieldsInstaller()->install($context);
     }
 
     public function uninstall(UninstallContext $uninstallContext): void
@@ -54,7 +64,23 @@ class MaxMind extends Plugin
     {
         parent::update($updateContext);
         $context = $updateContext->getContext();
+        $this->getOrderStateInstaller()->install($context);
+        $this->getPendingOrderStateInstaller()->install($context);
+        $this->getFraudPassOrderStateInstaller()->install($context);
+        $this->getFraudFailOrderStateInstaller()->install($context);
+        $this->getCompleteOrderStateInstaller()->install($context);
+        $this->getInProgressStateInstaller()->install($context);
         $this->getCancelledStateInstaller()->install($context);
+
+        $this->getOrderStateInstaller()->installTransitions($context);
+        $this->getPendingOrderStateInstaller()->installTransitions($context);
+        $this->getFraudPassOrderStateInstaller()->installTransitions($context);
+        $this->getFraudFailOrderStateInstaller()->installTransitions($context);
+        $this->getCompleteOrderStateInstaller()->installTransitions($context);
+        $this->getInProgressStateInstaller()->installTransitions($context);
+        $this->getCancelledStateInstaller()->installTransitions($context);
+
+        $this->getCustomFieldsInstaller()->install($context);
     }
 
     public function activate(ActivateContext $activateContext): void
@@ -73,7 +99,8 @@ class MaxMind extends Plugin
 
         return new FraudReviewCustomFieldsInstaller(
             $this->container->get('custom_field_set.repository'),
-            $this->container->get('custom_field_set_relation.repository')
+            $this->container->get('custom_field_set_relation.repository'),
+            $this->container->get('service_container')
         );
     }
 

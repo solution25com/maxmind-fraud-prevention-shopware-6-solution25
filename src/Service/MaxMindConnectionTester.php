@@ -25,8 +25,14 @@ class MaxMindConnectionTester
      */
     public function assertCredentialsValid(?string $salesChannelId, ?int $accountId, ?string $licenseKey): void
     {
-        $accountId ??= (int) $this->systemConfigService->get('MaxMind.config.MaxMindConfigAccountId', $salesChannelId);
-        $licenseKey ??= (string) $this->systemConfigService->get('MaxMind.config.MaxMindConfigLicenseKey', $salesChannelId);
+        $accountId ??= (int) $this->systemConfigService->get(
+            'MaxMind.config.MaxMindConfigAccountId',
+            $salesChannelId
+        );
+        $licenseKey ??= (string) $this->systemConfigService->get(
+            'MaxMind.config.MaxMindConfigLicenseKey',
+            $salesChannelId
+        );
 
         if ($accountId === 0 || $licenseKey === '') {
             throw new InvalidArgumentException('MaxMind account ID or license key is missing.');
@@ -56,11 +62,17 @@ class MaxMindConnectionTester
 
             $request->insights();
         } catch (AuthenticationException $exception) {
-            $this->logger->warning('MaxMind credential check failed due to authentication error.', ['exception' => $exception]);
+            $this->logger->warning(
+                'MaxMind credential check failed due to authentication error.',
+                ['exception' => $exception]
+            );
 
             throw $exception;
         } catch (WebServiceException $exception) {
-            $this->logger->error('MaxMind credential check failed due to a web service error.', ['exception' => $exception]);
+            $this->logger->error(
+                'MaxMind credential check failed due to a web service error.',
+                ['exception' => $exception]
+            );
 
             throw $exception;
         }

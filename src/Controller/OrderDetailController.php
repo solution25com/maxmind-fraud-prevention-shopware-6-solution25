@@ -35,6 +35,7 @@ class OrderDetailController extends AbstractController
     public function getFraudDetails(string $orderId, Context $context): JsonResponse
     {
         $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('customFields');
 
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);

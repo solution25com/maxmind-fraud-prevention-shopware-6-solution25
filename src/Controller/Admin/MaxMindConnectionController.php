@@ -20,7 +20,11 @@ class MaxMindConnectionController
     {
     }
 
-    #[Route(path: '/api/_action/solu1-maxmind/test-connection', name: 'api.action.solu1-maxmind.test-connection', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/solu1-maxmind/test-connection',
+        name: 'api.action.solu1-maxmind.test-connection',
+        methods: ['POST']
+    )]
     public function testConnection(Request $request): Response
     {
         try {

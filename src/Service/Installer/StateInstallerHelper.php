@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MaxMind\Service;
+namespace MaxMind\Service\Installer;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -112,7 +112,7 @@ class StateInstallerHelper
         if (!empty($deleteIds)) {
             try {
                 $this->stateMachineTransitionRepository->delete(
-                    array_map(fn($id) => ['id' => $id], $deleteIds),
+                    array_map(fn ($id) => ['id' => $id], $deleteIds),
                     $context
                 );
             } catch (\Exception) {
@@ -122,7 +122,6 @@ class StateInstallerHelper
 
     public function removeState(string $technicalName, string $stateMachineId, Context $context): void
     {
-        // Retrieve all states to be removed
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
         $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
@@ -143,9 +142,9 @@ class StateInstallerHelper
         ]));
         $historyDeleteIds = $this->stateMachineHistoryRepository->searchIds($historyCriteria, $context)->getIds();
 
-        $stateDeleteIds = array_map(fn($id) => ['id' => $id], $stateDeleteIds);
-        $transitionDeleteIds = array_map(fn($id) => ['id' => $id], $transitionDeleteIds);
-        $historyDeleteIds = array_map(fn($id) => ['id' => $id], $historyDeleteIds);
+        $stateDeleteIds = array_map(fn ($id) => ['id' => $id], $stateDeleteIds);
+        $transitionDeleteIds = array_map(fn ($id) => ['id' => $id], $transitionDeleteIds);
+        $historyDeleteIds = array_map(fn ($id) => ['id' => $id], $historyDeleteIds);
 
         if (!empty($transitionDeleteIds)) {
             try {
@@ -158,6 +157,7 @@ class StateInstallerHelper
             try {
                 $this->stateMachineHistoryRepository->delete($historyDeleteIds, $context);
             } catch (\Exception) {
+                // Log error if necessary, but continue execution
             }
         }
 
@@ -192,6 +192,7 @@ class StateInstallerHelper
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsAnyFilter('technicalName', array_keys($stateNames)));
             $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachineId));
+
             $states = $this->stateMachineStateRepository->search($criteria, $context);
             foreach ($states->getElements() as $state) {
                 /** @var \Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity $state */

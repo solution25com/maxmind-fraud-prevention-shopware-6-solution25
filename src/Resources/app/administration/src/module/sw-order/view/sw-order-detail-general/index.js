@@ -70,7 +70,9 @@ Shopware.Component.override('sw-order-detail-general', {
         copyTransactionId() {
             if (!this.transactionId) {
                 this.createNotificationError({
-                    message: this.$tc('sw-order-detail-general.maxmindFraudDetection.noTransactionId'),
+                    message: this.$tc(
+                        'sw-order-detail-general.maxmindFraudDetection.noTransactionId'
+                    ),
                 });
                 return;
             }
@@ -79,18 +81,36 @@ Shopware.Component.override('sw-order-detail-general', {
                 .writeText(this.transactionId)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-order-detail-general.maxmindFraudDetection.transactionIdCopied'),
+                        message: this.$tc(
+                            'sw-order-detail-general.maxmindFraudDetection.transactionIdCopied'
+                        ),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-order-detail-general.maxmindFraudDetection.copyFailed'),
+                        message: this.$tc(
+                            'sw-order-detail-general.maxmindFraudDetection.copyFailed'
+                        ),
                     });
                 });
         },
 
         toggleWarningsFactors() {
             this.showWarningsFactors = !this.showWarningsFactors;
+        },
+
+        createNotificationSuccess({ message }) {
+            this.$root.$emit('notification-create', {
+                type: 'success',
+                message,
+            });
+        },
+
+        createNotificationError({ message }) {
+            this.$root.$emit('notification-create', {
+                type: 'error',
+                message,
+            });
         },
     },
 });
