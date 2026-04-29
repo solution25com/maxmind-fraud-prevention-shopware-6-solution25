@@ -21,6 +21,10 @@ The plugin helps store owners reduce fraud by automatically analyzing orders, fl
    - Displays fraud scores in the Orders grid and Order Detail view.
 6. **Shopware Compatibility**
    - Works with Shopware 6.4–6.6 and future updates.
+  
+## Compatibility
+- ✅ Shopware 6.6.x
+- ✅ Shopware 6.7.x 
 
 ## Get Started
 
