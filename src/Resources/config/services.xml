@@ -10,9 +10,8 @@
         </service>
 
         <service id="MaxMind\Subscriber\OrderPlacedSubscriber">
-            <argument type="service" id="order.repository"/>
+            <argument type="service" id="messenger.bus.default"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="MaxMind\Service\MaxMindFraudService"/>
             <argument type="service" id="request_stack"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -107,6 +106,12 @@
         <service id="MaxMind\Controller\Admin\MaxMindConnectionController" public="true">
             <argument type="service" id="MaxMind\Service\MaxMindConnectionTester"/>
             <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="MaxMind\MessageHandler\FraudCheckMessageHandler">
+            <argument type="service" id="MaxMind\Service\MaxMindFraudService"/>
+            <argument type="service" id="logger"/>
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

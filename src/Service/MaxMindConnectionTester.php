@@ -60,7 +60,7 @@ class MaxMindConnectionTester
             );
             $request = $request->withOrder(amount: 10.0, currency: 'USD');
 
-            $request->insights();
+            $request->score();
         } catch (AuthenticationException $exception) {
             $this->logger->warning(
                 'MaxMind credential check failed due to authentication error.',

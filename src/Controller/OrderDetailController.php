@@ -30,6 +30,7 @@ class OrderDetailController extends AbstractController
     #[Route(
         path: '/api/_action/maxmind/fraud-details/{orderId}',
         name: 'api.action.maxmind.fraud_details',
+        defaults: ['_acl' => ['order.viewer']],
         methods: ['GET']
     )]
     public function getFraudDetails(string $orderId, Context $context): JsonResponse

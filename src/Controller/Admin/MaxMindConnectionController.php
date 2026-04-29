@@ -23,6 +23,7 @@ class MaxMindConnectionController
     #[Route(
         path: '/api/_action/solu1-maxmind/test-connection',
         name: 'api.action.solu1-maxmind.test-connection',
+        defaults: ['_acl' => ['system.plugin_maintain']],
         methods: ['POST']
     )]
     public function testConnection(Request $request): Response
@@ -62,7 +63,7 @@ class MaxMindConnectionController
         } catch (WebServiceException $exception) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Connection to MaxMind failed: ' . $exception->getMessage(),
+                'message' => 'Connection to MaxMind failed: ' ,
             ], Response::HTTP_BAD_GATEWAY);
         } catch (\Throwable $exception) {
             return new JsonResponse([

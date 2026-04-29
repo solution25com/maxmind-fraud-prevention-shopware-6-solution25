@@ -66,6 +66,15 @@ class MaxMindFraudService
                 $salesChannelId,
                 $capturedIp
             );
+            if (($maxMindData['maxmind_check_failed'] ?? false) === true) {
+                $this->logger->warning('MaxMind fraud check failed. Skipping fraud state transition.', [
+                    'orderId' => $orderId,
+                    'salesChannelId' => $salesChannelId,
+                    'error' => $maxMindData['maxmind_error_message'] ?? null,
+                ]);
+
+                return;
+            }
             $riskScore = $maxMindData['maxmind_fraud_risk'];
 
             $this->logger->info("Order $orderId has a MaxMind risk score of: $riskScore");
@@ -92,15 +101,14 @@ class MaxMindFraudService
                 }
             } else {
                 try {
-                    $transition = new Transition('order', $orderId, 'mark_as_fraud_review', 'stateId');
+                    $transition = new Transition('order', $orderId, 'mark_as_fraud_pass', 'stateId');
                     $this->stateMachineRegistry->transition($transition, $context);
-                    $transition = new Transition('order', $orderId, 'mark_as_fraud_manual_pass', 'stateId');
-                    $this->stateMachineRegistry->transition($transition, $context);
+
                     $this->logger->info(
-                        "Order $orderId has been transitioned to Open due to low risk score ($riskScore)."
+                        "Order $orderId has been transitioned to Fraud Pass due to low risk score ($riskScore)."
                     );
                 } catch (\Exception $e) {
-                    $this->logger->error("Error transitioning order $orderId to Open: " . $e->getMessage());
+                    $this->logger->error("Error transitioning order $orderId to Fraud Pass: " . $e->getMessage());
                 }
             }
         } catch (\Exception $e) {
@@ -276,6 +284,8 @@ class MaxMindFraudService
                     'maxmind_transaction_id' => '',
                     'maxmind_transaction_url' => '',
                     'maxmind_warnings_factors' => ['skipped_no_valid_input'],
+                    'maxmind_check_failed' => true,
+                    'maxmind_error_message' => 'No valid input values could be built.',
                 ];
             }
 
@@ -325,6 +335,8 @@ class MaxMindFraudService
                 'maxmind_transaction_id' => '',
                 'maxmind_transaction_url' => '',
                 'maxmind_warnings_factors' => ['invalid_request'],
+                'maxmind_check_failed' => true,
+                'maxmind_error_message' => $e->getMessage(),
             ];
         } catch (\Exception $e) {
             $this->logger->error('Error calling MaxMind minFraud API: ' . $e->getMessage());
@@ -335,7 +347,9 @@ class MaxMindFraudService
                 'maxmind_ip_risk_score' => 0.0,
                 'maxmind_transaction_id' => '',
                 'maxmind_transaction_url' => '',
-                'maxmind_warnings_factors' => [],
+                'maxmind_warnings_factors' => ['api_error'],
+                'maxmind_check_failed' => true,
+                'maxmind_error_message' => $e->getMessage(),
             ];
         }
     }

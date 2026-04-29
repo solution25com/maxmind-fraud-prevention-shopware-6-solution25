@@ -1,6 +1,6 @@
 import template from './sw-order-list.html.twig';
 
-import { Component } from 'Shopware';
+const { Component } = Shopware;
 
 Component.override('sw-order-list', {
     template,

@@ -108,7 +108,7 @@ class FraudReviewCustomFieldsInstaller
 
             $this->customFieldSetRelationRepository->upsert(array_map(static fn(string $customFieldSetId) => [
                 'customFieldSetId' => $customFieldSetId,
-                'entityName' => 'product',
+                'entityName' => 'order',
             ], $customFieldSetIds), $context);
         } catch (\Exception) {
             // do nothing
