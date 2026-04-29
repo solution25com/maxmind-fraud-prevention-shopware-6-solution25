@@ -10,7 +10,6 @@ All notable changes to this project will be documented in this file.
 - Add ACL to admin API routes
 - Fix custom field relation (order instead of product)
 - Reduce MaxMind API cost (score instead of insights)
-- Restore Shopware 6.6 compatibility
 - Fix custom field labels
 - Fix risk average calculation per sales channel
 - Simplify low-risk order state transitions
